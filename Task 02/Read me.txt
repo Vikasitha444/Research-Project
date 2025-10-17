@@ -1,0 +1,15 @@
+අද මට තියෙන්නේ,  අපේ Project එකට ගැලපෙන, PDF Reader Tool එක මොකද්ද කියලා දැනගන්න.  මේකට මම,  pypdfium2, pypdf, pdfplumber, pymupdf4llm, unstructured, marker-pdf, textract, PDFMiner කියන, Readers 8ම, ගැන Website වල, Reseach එකක් කලා.  මේකෙදි, මම, ගත්තු Results, Criteria 3ක් යටතේ Rank කරලා ලකුණු දුන්නා, Unbais decition එකක් ගන්න ඕන නිසා.
+
+මේ Criteria 3 තමා,
+   1) Popular (Tool එක ගැන අවම වශයෙන් Web Site දෙකකවත්, විස්තර සඳහන් කර තිබේද?)
+   2) Text එක Extract කළාට, පිළිවෙලට Extract කිරීම (Markdowns පවත්වා ගැනීම) 
+   3) PDF වල තියෙන, Links, Email වගේ දේවල් කියවීම
+        4)    ගත වෙන වෙලාව
+
+මේකෙදි, Popular එක බලද්දිම, ඉතුරු වුනෙ, Tool 8න් 7ක් විතරයි.  ඒ තමා, pypdfium2, pypdf, pdfplumber, pymupdf4llm, marker-pdf, textract, PDFMiner කියන ටික.
+
+ඊලඟට, පිළිවෙලට Extract කිරීම සහ PDF වල තියෙන, Links, Email වගේ දේවල් හරියට කියවීම වෙනවද බලන්න, අපි ඉතුරු වෙච්ච, Tools 7, වෙන වෙනම Example CV එකක් දාලා Check කලා.  මේකෙදි, 7න් 4ක්ම මේ වෙද්දී වැඩ කරන්නේ නෑ මේ වෙද්දී. 
+
+ඉතිරි 3න් වැඩිම ලකුණු ගත්තේ, pymupdf4llm කියන Tool එක. මොකද මේ Tool එක පිළිවෙලට Extract කරනවා වගේම PDF වල තියෙන, Links, Email වගේ දේවල් කියවනවා.  හැබැයි මේ Tool එකට, ගතවෙන වෙලාව වැඩියි. 
+
+නමුත්, වැඩිම ලකුණු ගත්ත නිසා අපි මේ Tool එක තෝරාගත්තා.
