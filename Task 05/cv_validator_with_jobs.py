@@ -8,6 +8,9 @@ import time
 import gc
 from werkzeug.utils import secure_filename
 from openai import OpenAI
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 # Get API key from config file
 try:
@@ -52,6 +55,79 @@ COMMON_MISTAKES = {
     "no_github": "GitHub profile/projects links are missing",
     "wrong_length": "CV should be 1-2 pages for internship/junior positions"
 }
+
+# ============= Job Recommendation Functions =============
+
+def load_job_data():
+    """Load job data from CSV file"""
+    try:
+        df = pd.read_csv('topjobs_it_jobs.csv')
+        df['title'] = df['title'].fillna('Not specified')
+        df['company'] = df['company'].fillna('Company Name Withheld')
+        df['location'] = df['location'].fillna('Sri Lanka')
+        df['description'] = df['description'].fillna('Please refer the vacancy')
+        df['combined_text'] = df['title'].astype(str) + ' ' + df['description'].astype(str)
+        return df
+    except Exception as e:
+        print(f"Error loading job data: {e}")
+        return None
+
+def get_job_recommendations(cv_keywords, location_filter='All', top_n=5):
+    """Get job recommendations based on CV keywords"""
+    try:
+        df = load_job_data()
+        if df is None or len(df) == 0:
+            return []
+        
+        # Filter by location if specified
+        if location_filter != 'All':
+            df = df[df['location'].str.contains(location_filter, case=False, na=False)]
+        
+        if len(df) == 0:
+            return []
+        
+        # Create user skills text from keywords
+        user_skills = ' '.join(cv_keywords)
+        
+        # Prepare text data
+        all_text = list(df['combined_text']) + [user_skills]
+        
+        # Create TF-IDF vectors
+        vectorizer = TfidfVectorizer(max_features=500, ngram_range=(1, 2), stop_words='english')
+        tfidf_matrix = vectorizer.fit_transform(all_text)
+        
+        user_vector = tfidf_matrix[-1]
+        job_vectors = tfidf_matrix[:-1]
+        
+        # Calculate similarity
+        similarities = cosine_similarity(user_vector, job_vectors).flatten()
+        
+        # Add similarity scores to dataframe
+        df_copy = df.copy()
+        df_copy['similarity_score'] = similarities
+        
+        # Get top recommendations
+        recommendations = df_copy.sort_values('similarity_score', ascending=False).head(top_n)
+        
+        # Convert to list of dictionaries
+        jobs = []
+        for _, row in recommendations.iterrows():
+            match_percentage = row['similarity_score'] * 100
+            jobs.append({
+                'title': row['title'],
+                'company': row['company'],
+                'location': row['location'],
+                'description': row['description'][:200] + '...' if len(row['description']) > 200 else row['description'],
+                'url': row.get('url', ''),
+                'closing_date': row.get('closing_date', ''),
+                'match_percentage': round(match_percentage, 1),
+                'match_level': 'Excellent' if match_percentage >= 70 else 'Good' if match_percentage >= 50 else 'Potential'
+            })
+        
+        return jobs
+    except Exception as e:
+        print(f"Error in job recommendations: {e}")
+        return []
 
 # ============= Validation Functions =============
 
@@ -366,7 +442,7 @@ def validate_technical_keywords(pdf_path):
             "status": status,
             "message": message,
             "value": f"{keyword_count} keywords",
-            "found_keywords": found_keywords[:10],  # Show first 10
+            "found_keywords": found_keywords,
             "score": score
         }
     except Exception as e:
@@ -578,8 +654,6 @@ def check_skills_separation(pdf_path):
             doc.close()
         return {"status": "error", "message": f"Error: {e}", "value": "Error", "score": 0}
 
-# ============= NEW: Professional Contact Information Check =============
-
 def check_contact_information(pdf_path):
     """Check if CV has complete professional contact information"""
     doc = None
@@ -664,8 +738,6 @@ def check_contact_information(pdf_path):
         if doc:
             doc.close()
 
-# ============= NEW: Action Verbs in Experience/Projects Check =============
-
 def check_action_verbs(pdf_path):
     """Check if CV uses strong action verbs (important for ATS and impact)"""
     strong_verbs = [
@@ -729,8 +801,6 @@ def check_action_verbs(pdf_path):
         if doc:
             doc.close()
 
-# ============= NEW: Quantifiable Achievements Check =============
-
 def check_quantifiable_achievements(pdf_path):
     """Check if CV includes numbers/metrics (40% improvement, 5 projects, etc.)"""
     doc = None
@@ -790,8 +860,6 @@ def check_quantifiable_achievements(pdf_path):
     finally:
         if doc:
             doc.close()
-
-# ============= NEW: Professional Summary/Objective Check =============
 
 def check_professional_summary(pdf_path):
     """Check if CV has a professional summary or career objective"""
@@ -858,8 +926,6 @@ def check_professional_summary(pdf_path):
     finally:
         if doc:
             doc.close()
-
-# ============= NEW: ATS-Friendly Format Check =============
 
 def check_ats_compatibility(pdf_path):
     """Check if CV is ATS (Applicant Tracking System) friendly"""
@@ -942,8 +1008,6 @@ def check_ats_compatibility(pdf_path):
         if doc:
             doc.close()
 
-# ============= NEW: Consistency Check =============
-
 def check_consistency(pdf_path):
     """Check for consistency in dates, formatting, and style"""
     doc = None
@@ -981,14 +1045,6 @@ def check_consistency(pdf_path):
             issues.append("Multiple bullet point styles")
             score -= 2
         
-        # Check for consistent capitalization in headers
-        lines = full_text.split('\n')
-        potential_headers = [l.strip() for l in lines if l.strip() and len(l.strip()) < 30 and l.strip().isupper()]
-        
-        if len(potential_headers) > 1:
-            # Good - using uppercase for headers consistently
-            pass
-        
         score = max(0, score)
         
         if score >= 9:
@@ -1019,8 +1075,6 @@ def check_consistency(pdf_path):
     finally:
         if doc:
             doc.close()
-
-# ============= Enhanced LLM Validation (HR Manager Perspective) =============
 
 def validate_with_llm(pdf_path, validation_results):
     """Enhanced LLM validation matching HR survey criteria with context from other validations"""
@@ -1138,8 +1192,6 @@ Answer ONLY with YES or NO for each numbered item. One answer per line.'''
             "score": 0
         }
 
-# ============= Overall Score Calculation =============
-
 def calculate_overall_score(results):
     """Calculate weighted overall score from all validations"""
     weights = {
@@ -1209,7 +1261,7 @@ def calculate_overall_score(results):
         "message": f"Overall CV Score: {round(final_score, 1)}/10 - {grade}"
     }
 
-# ============= Main Route =============
+# ============= Routes =============
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -1239,13 +1291,10 @@ def index():
                     'github': validate_github_links(filepath),
                     'skills': check_skills_separation(filepath),
                     'keywords': validate_technical_keywords(filepath),
-                    
-                    # NEW Professional checks
                     'contact': check_contact_information(filepath),
                     'action_verbs': check_action_verbs(filepath),
                     'achievements': check_quantifiable_achievements(filepath),
                     'summary': check_professional_summary(filepath)
-                    
                 }
                 
                 # Run LLM validation with context from other validations
@@ -1253,6 +1302,11 @@ def index():
                 
                 # Calculate overall score
                 results['overall'] = calculate_overall_score(results)
+                
+                # Get job recommendations based on CV keywords
+                cv_keywords = results['keywords'].get('found_keywords', [])
+                job_recommendations = get_job_recommendations(cv_keywords, top_n=5)
+                results['job_recommendations'] = job_recommendations
                 
             finally:
                 gc.collect()
@@ -1263,7 +1317,7 @@ def index():
                 except PermissionError:
                     print(f"Warning: Could not delete {filepath} due to file lock.")
 
-            return render_template("index.html", results=results, filename=filename)
+            return render_template("results.html", results=results, filename=filename)
 
         return 'Please upload a PDF file only.'
 
@@ -1299,25 +1353,23 @@ def api_validate():
             'action_verbs': check_action_verbs(filepath),
             'achievements': check_quantifiable_achievements(filepath),
             'summary': check_professional_summary(filepath),
-           
-           
         }
         results['llm'] = validate_with_llm(filepath, results)
         results['overall'] = calculate_overall_score(results)
+        
+        # Get job recommendations
+        cv_keywords = results['keywords'].get('found_keywords', [])
+        results['job_recommendations'] = get_job_recommendations(cv_keywords, top_n=5)
+        
         return jsonify(results)
     finally:
         if os.path.exists(filepath):
             os.remove(filepath)
 
-# ---------- JOB RECOMMENDATIONS ----------
-@app.route("/job-recommendations")
-def job_recommendations():
-    return render_template("job_recommendation.html")
-
 if __name__ == '__main__':
     print("\n" + "=" * 50)
-    print("  Enhanced CV Validator for Sri Lankan IT Market")
-    print("  Based on HR Survey & Job Listing Analysis")
+    print("  Enhanced CV Validator with Job Recommendations")
+    print("  For Sri Lankan IT Market")
     print("  http://127.0.0.1:5000")
     print("=" * 50 + "\n")
     app.run(debug=True, host='0.0.0.0', port=5000)
