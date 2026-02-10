@@ -1309,6 +1309,11 @@ def api_validate():
         if os.path.exists(filepath):
             os.remove(filepath)
 
+# ---------- JOB RECOMMENDATIONS ----------
+@app.route("/job-recommendations")
+def job_recommendations():
+    return render_template("job_recommendation.html")
+
 if __name__ == '__main__':
     print("\n" + "=" * 50)
     print("  Enhanced CV Validator for Sri Lankan IT Market")
