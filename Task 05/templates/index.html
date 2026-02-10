@@ -840,6 +840,34 @@
             box-shadow: 0 8px 16px rgba(0,0,0,0.1);
         }
 
+        .job-rec-btn {
+            display: inline-block;
+            padding: 16px 40px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 18px;
+            margin: 32px 12px;
+            box-shadow: 0 10px 30px rgba(99,102,241,0.3);
+            transition: all 0.3s;
+        }
+
+        .job-rec-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(99,102,241,0.4);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            margin: 32px 0;
+        }
+
         .loading {
             display: none;
             position: fixed;
@@ -1320,7 +1348,12 @@
         </div>
         {% endif %}
 
-        <div style="text-align:center">
+        <div class="action-buttons">
+            {% if results.keywords.found_keywords %}
+            <a href="/job-recommendations?keywords={{ results.keywords.found_keywords|join(' ') }}" class="job-rec-btn">
+                💼 Get Job Recommendations
+            </a>
+            {% endif %}
             <a href="/" class="back-btn">← Validate Another CV</a>
         </div>
     </div>

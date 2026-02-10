@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+
         body {
             font-family: 'Inter', sans-serif;
             background: linear-gradient(180deg, #f8fafc 0%, #e0e7ff 100%);
@@ -83,6 +83,35 @@
         .header p {
             font-size: 18px;
             color: #64748b;
+        }
+
+        .keywords-box {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 32px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .keywords-box h3 {
+            font-size: 16px;
+            color: #64748b;
+            margin-bottom: 12px;
+        }
+
+        .keywords-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .keyword-tag {
+            padding: 6px 12px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
         }
 
         .stats-bar {
@@ -241,25 +270,11 @@
             gap: 6px;
         }
 
-        .job-skills {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
+        .job-description {
+            font-size: 14px;
+            color: #64748b;
             margin-bottom: 16px;
-        }
-
-        .skill-tag {
-            padding: 4px 10px;
-            background: #f1f5f9;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            color: #475569;
-        }
-
-        .skill-tag.matched {
-            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-            color: white;
+            line-height: 1.5;
         }
 
         .job-actions {
@@ -301,118 +316,6 @@
             background: #f1f5f9;
         }
 
-        .insights {
-            background: white;
-            border-radius: 16px;
-            padding: 32px;
-            margin-bottom: 32px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .insights-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 24px;
-            margin-top: 24px;
-        }
-
-        .insight-card {
-            padding: 20px;
-            background: #f8fafc;
-            border-radius: 12px;
-            border-left: 4px solid #6366f1;
-        }
-
-        .insight-icon {
-            font-size: 32px;
-            margin-bottom: 12px;
-        }
-
-        .insight-title {
-            font-weight: 700;
-            color: #0f172a;
-            margin-bottom: 8px;
-        }
-
-        .insight-text {
-            font-size: 14px;
-            color: #64748b;
-        }
-
-        .skills-comparison {
-            background: white;
-            border-radius: 16px;
-            padding: 32px;
-            margin-bottom: 32px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .skills-list {
-            margin-top: 24px;
-        }
-
-        .skill-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px;
-            background: #f8fafc;
-            border-radius: 8px;
-            margin-bottom: 12px;
-        }
-
-        .skill-name {
-            font-weight: 600;
-            color: #0f172a;
-        }
-
-        .skill-status {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .skill-status.has { color: #10b981; }
-        .skill-status.missing { color: #ef4444; }
-
-        .filters {
-            background: white;
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 32px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-
-        .filter-group {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
-
-        .filter-btn {
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: 2px solid #e2e8f0;
-            background: white;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            color: #64748b;
-            transition: all 0.2s;
-        }
-
-        .filter-btn.active {
-            border-color: #6366f1;
-            background: #f1f5f9;
-            color: #6366f1;
-        }
-
-        .filter-btn:hover {
-            border-color: #6366f1;
-        }
-
         .back-link {
             display: inline-flex;
             align-items: center;
@@ -428,6 +331,24 @@
 
         .back-link:hover {
             background: #f1f5f9;
+        }
+
+        .no-jobs {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .no-jobs h3 {
+            font-size: 24px;
+            color: #64748b;
+            margin-bottom: 16px;
+        }
+
+        .no-jobs p {
+            color: #94a3b8;
         }
 
         @media (max-width: 768px) {
@@ -455,311 +376,107 @@
             <p>Based on your CV analysis and Sri Lankan IT market trends</p>
         </div>
 
-        <div class="match-score">
-            <h2>Your Overall Job Market Fit</h2>
-            <div class="score-display">85%</div>
-            <div class="score-text">Strong match for junior developer positions</div>
+        {% if keywords %}
+        <div class="keywords-box">
+            <h3>🎯 Matching based on your skills:</h3>
+            <div class="keywords-tags">
+                {% for keyword in keywords.split() %}
+                <span class="keyword-tag">{{ keyword }}</span>
+                {% endfor %}
+            </div>
         </div>
+        {% endif %}
 
+        {% if recommendations and recommendations|length > 0 %}
+
+        {% if stats %}
         <div class="stats-bar">
             <div class="stat">
-                <div class="stat-value">12</div>
+                <div class="stat-value">{{ stats.total_jobs }}</div>
                 <div class="stat-label">Matching Jobs</div>
             </div>
             <div class="stat">
-                <div class="stat-value">8</div>
+                <div class="stat-value">{{ stats.high_match }}</div>
                 <div class="stat-label">High Match</div>
             </div>
             <div class="stat">
-                <div class="stat-value">4</div>
-                <div class="stat-label">Skills to Learn</div>
+                <div class="stat-value">{{ stats.medium_match }}</div>
+                <div class="stat-label">Medium Match</div>
             </div>
             <div class="stat">
-                <div class="stat-value">Software Tech</div>
-                <div class="stat-label">Specialization</div>
+                <div class="stat-value">{{ stats.low_match }}</div>
+                <div class="stat-label">Potential Match</div>
             </div>
         </div>
+        {% endif %}
 
-        <div class="insights">
-            <h2 class="section-title">💡 Career Insights</h2>
-            <div class="insights-grid">
-                <div class="insight-card">
-                    <div class="insight-icon">🎯</div>
-                    <div class="insight-title">Best Fit Roles</div>
-                    <div class="insight-text">Junior Full Stack Developer, Software Engineer Intern, Frontend Developer</div>
-                </div>
-                <div class="insight-card">
-                    <div class="insight-icon">📈</div>
-                    <div class="insight-title">Salary Range</div>
-                    <div class="insight-text">LKR 45,000 - 75,000 for entry-level positions in Colombo</div>
-                </div>
-                <div class="insight-card">
-                    <div class="insight-icon">🔥</div>
-                    <div class="insight-title">In-Demand Skills</div>
-                    <div class="insight-text">React, Node.js, Python, and AWS are highly sought after</div>
-                </div>
-                <div class="insight-card">
-                    <div class="insight-icon">⚡</div>
-                    <div class="insight-title">Quick Wins</div>
-                    <div class="insight-text">Add Docker and Kubernetes to boost your profile by 25%</div>
-                </div>
+        {% if recommendations[0] %}
+        <div class="match-score">
+            <h2>Your Overall Job Market Fit</h2>
+            <div class="score-display">{{ "%.0f"|format(recommendations[0].match_score) }}%</div>
+            <div class="score-text">
+                {% if recommendations[0].match_score >= 80 %}
+                Excellent match! You're a strong candidate for these positions
+                {% elif recommendations[0].match_score >= 60 %}
+                Good match! Your skills align well with these opportunities
+                {% else %}
+                Growing potential - Consider learning additional skills
+                {% endif %}
             </div>
         </div>
-
-        <div class="filters">
-            <div class="filter-group">
-                <button class="filter-btn active">All Jobs (12)</button>
-                <button class="filter-btn">High Match (8)</button>
-                <button class="filter-btn">Medium Match (3)</button>
-                <button class="filter-btn">Internships (5)</button>
-                <button class="filter-btn">Full-Time (7)</button>
-            </div>
-        </div>
+        {% endif %}
 
         <h2 class="section-title">💼 Recommended Jobs for You</h2>
 
         <div class="jobs-grid">
-            <!-- Job Card 1 -->
+            {% for job in recommendations %}
             <div class="job-card">
                 <div class="job-header">
-                    <div class="job-company">🏢</div>
-                    <span class="match-badge match-high">95% Match</span>
+                    <div class="job-company">💼</div>
+                    <span class="match-badge match-{{ job.match_level }}">{{ job.match_score }}% Match</span>
                 </div>
-                <div class="job-title">Junior Full Stack Developer</div>
-                <div class="job-company-name">Dialog Axiata PLC</div>
+                <div class="job-title">{{ job.title }}</div>
+                <div class="job-company-name">{{ job.company }}</div>
                 <div class="job-details">
-                    <div class="job-detail">📍 Colombo</div>
-                    <div class="job-detail">💰 LKR 60K - 80K</div>
-                    <div class="job-detail">⏰ Full-Time</div>
+                    <div class="job-detail">📍 {{ job.location }}</div>
+                    {% if job.salary_range %}
+                    <div class="job-detail">💰 {{ job.salary_range }}</div>
+                    {% endif %}
                 </div>
-                <div class="job-skills">
-                    <span class="skill-tag matched">React</span>
-                    <span class="skill-tag matched">Node.js</span>
-                    <span class="skill-tag matched">MongoDB</span>
-                    <span class="skill-tag matched">Git</span>
-                    <span class="skill-tag">AWS</span>
+                {% if job.description and job.description != 'Please refer the vacancy' %}
+                <div class="job-description">
+                    {{ job.description[:150] }}{% if job.description|length > 150 %}...{% endif %}
                 </div>
+                {% endif %}
+                {% if job.closing_date and job.closing_date != 'N/A' %}
+                <div class="job-detail" style="margin-bottom: 12px;">
+                    📅 Apply before: {{ job.closing_date }}
+                </div>
+                {% endif %}
                 <div class="job-actions">
-                    <button class="btn btn-primary">Apply Now</button>
-                    <button class="btn btn-secondary">Save</button>
+                    {% if job.url and job.url != '#' %}
+                    <a href="{{ job.url }}" target="_blank" class="btn btn-primary">Apply Now</a>
+                    {% else %}
+                    <button class="btn btn-primary" disabled>No Link Available</button>
+                    {% endif %}
                 </div>
             </div>
-
-            <!-- Job Card 2 -->
-            <div class="job-card">
-                <div class="job-header">
-                    <div class="job-company">💻</div>
-                    <span class="match-badge match-high">92% Match</span>
-                </div>
-                <div class="job-title">Software Engineer Intern</div>
-                <div class="job-company-name">IFS - Sri Lanka</div>
-                <div class="job-details">
-                    <div class="job-detail">📍 Colombo 03</div>
-                    <div class="job-detail">💰 LKR 45K - 55K</div>
-                    <div class="job-detail">⏰ Internship</div>
-                </div>
-                <div class="job-skills">
-                    <span class="skill-tag matched">Java</span>
-                    <span class="skill-tag matched">Python</span>
-                    <span class="skill-tag matched">SQL</span>
-                    <span class="skill-tag">Spring Boot</span>
-                    <span class="skill-tag">Docker</span>
-                </div>
-                <div class="job-actions">
-                    <button class="btn btn-primary">Apply Now</button>
-                    <button class="btn btn-secondary">Save</button>
-                </div>
-            </div>
-
-            <!-- Job Card 3 -->
-            <div class="job-card">
-                <div class="job-header">
-                    <div class="job-company">🚀</div>
-                    <span class="match-badge match-high">90% Match</span>
-                </div>
-                <div class="job-title">Frontend Developer</div>
-                <div class="job-company-name">Virtusa Corporation</div>
-                <div class="job-details">
-                    <div class="job-detail">📍 Colombo 07</div>
-                    <div class="job-detail">💰 LKR 55K - 75K</div>
-                    <div class="job-detail">⏰ Full-Time</div>
-                </div>
-                <div class="job-skills">
-                    <span class="skill-tag matched">React</span>
-                    <span class="skill-tag matched">JavaScript</span>
-                    <span class="skill-tag matched">HTML5</span>
-                    <span class="skill-tag matched">CSS3</span>
-                    <span class="skill-tag">TypeScript</span>
-                </div>
-                <div class="job-actions">
-                    <button class="btn btn-primary">Apply Now</button>
-                    <button class="btn btn-secondary">Save</button>
-                </div>
-            </div>
-
-            <!-- Job Card 4 -->
-            <div class="job-card">
-                <div class="job-header">
-                    <div class="job-company">⚡</div>
-                    <span class="match-badge match-high">88% Match</span>
-                </div>
-                <div class="job-title">Backend Developer Trainee</div>
-                <div class="job-company-name">WSO2 (Private) Limited</div>
-                <div class="job-details">
-                    <div class="job-detail">📍 Colombo 05</div>
-                    <div class="job-detail">💰 LKR 50K - 65K</div>
-                    <div class="job-detail">⏰ Trainee</div>
-                </div>
-                <div class="job-skills">
-                    <span class="skill-tag matched">Java</span>
-                    <span class="skill-tag matched">Node.js</span>
-                    <span class="skill-tag matched">MySQL</span>
-                    <span class="skill-tag">Microservices</span>
-                    <span class="skill-tag">REST API</span>
-                </div>
-                <div class="job-actions">
-                    <button class="btn btn-primary">Apply Now</button>
-                    <button class="btn btn-secondary">Save</button>
-                </div>
-            </div>
-
-            <!-- Job Card 5 -->
-            <div class="job-card">
-                <div class="job-header">
-                    <div class="job-company">🎨</div>
-                    <span class="match-badge match-medium">75% Match</span>
-                </div>
-                <div class="job-title">UI/UX Developer</div>
-                <div class="job-company-name">CodeGen International</div>
-                <div class="job-details">
-                    <div class="job-detail">📍 Colombo 02</div>
-                    <div class="job-detail">💰 LKR 50K - 70K</div>
-                    <div class="job-detail">⏰ Full-Time</div>
-                </div>
-                <div class="job-skills">
-                    <span class="skill-tag matched">HTML5</span>
-                    <span class="skill-tag matched">CSS3</span>
-                    <span class="skill-tag matched">JavaScript</span>
-                    <span class="skill-tag">Figma</span>
-                    <span class="skill-tag">Adobe XD</span>
-                </div>
-                <div class="job-actions">
-                    <button class="btn btn-primary">Apply Now</button>
-                    <button class="btn btn-secondary">Save</button>
-                </div>
-            </div>
-
-            <!-- Job Card 6 -->
-            <div class="job-card">
-                <div class="job-header">
-                    <div class="job-company">📱</div>
-                    <span class="match-badge match-medium">72% Match</span>
-                </div>
-                <div class="job-title">Mobile App Developer Intern</div>
-                <div class="job-company-name">hSenid Mobile Solutions</div>
-                <div class="job-details">
-                    <div class="job-detail">📍 Colombo 08</div>
-                    <div class="job-detail">💰 LKR 40K - 50K</div>
-                    <div class="job-detail">⏰ Internship</div>
-                </div>
-                <div class="job-skills">
-                    <span class="skill-tag matched">React Native</span>
-                    <span class="skill-tag matched">JavaScript</span>
-                    <span class="skill-tag">Flutter</span>
-                    <span class="skill-tag">Android</span>
-                    <span class="skill-tag">iOS</span>
-                </div>
-                <div class="job-actions">
-                    <button class="btn btn-primary">Apply Now</button>
-                    <button class="btn btn-secondary">Save</button>
-                </div>
-            </div>
+            {% endfor %}
         </div>
 
-        <div class="skills-comparison">
-            <h2 class="section-title">📊 Skills Gap Analysis</h2>
-            <p style="color: #64748b; margin-bottom: 16px;">Compare your skills with job requirements</p>
-            
-            <div class="skills-list">
-                <div class="skill-item">
-                    <span class="skill-name">React</span>
-                    <span class="skill-status has">✓ You have this</span>
-                </div>
-                <div class="skill-item">
-                    <span class="skill-name">Node.js</span>
-                    <span class="skill-status has">✓ You have this</span>
-                </div>
-                <div class="skill-item">
-                    <span class="skill-name">Python</span>
-                    <span class="skill-status has">✓ You have this</span>
-                </div>
-                <div class="skill-item">
-                    <span class="skill-name">Docker</span>
-                    <span class="skill-status missing">✕ Learn this to increase match</span>
-                </div>
-                <div class="skill-item">
-                    <span class="skill-name">Kubernetes</span>
-                    <span class="skill-status missing">✕ Learn this to increase match</span>
-                </div>
-                <div class="skill-item">
-                    <span class="skill-name">AWS</span>
-                    <span class="skill-status missing">✕ High demand in market</span>
-                </div>
-                <div class="skill-item">
-                    <span class="skill-name">TypeScript</span>
-                    <span class="skill-status missing">✕ Recommended for frontend roles</span>
-                </div>
-            </div>
+        {% else %}
+
+        <div class="no-jobs">
+            <h3>No Job Recommendations Yet</h3>
+            <p>Upload your CV on the main page to get personalized job recommendations!</p>
+            <a href="/" class="btn btn-primary" style="margin-top: 20px;">Upload CV Now</a>
         </div>
 
-        <div class="insights">
-            <h2 class="section-title">🎓 Learning Recommendations</h2>
-            <div class="insights-grid">
-                <div class="insight-card">
-                    <div class="insight-icon">📚</div>
-                    <div class="insight-title">Docker & Containerization</div>
-                    <div class="insight-text">Required by 65% of jobs. Est. 2-3 weeks to learn basics.</div>
-                    <button class="btn btn-primary" style="margin-top: 12px; width: 100%;">Start Learning</button>
-                </div>
-                <div class="insight-card">
-                    <div class="insight-icon">☁️</div>
-                    <div class="insight-title">AWS Cloud Services</div>
-                    <div class="insight-text">In 78% of job descriptions. High salary impact.</div>
-                    <button class="btn btn-primary" style="margin-top: 12px; width: 100%;">Start Learning</button>
-                </div>
-                <div class="insight-card">
-                    <div class="insight-icon">🔷</div>
-                    <div class="insight-title">TypeScript</div>
-                    <div class="insight-text">Growing demand in Sri Lankan market. Frontend boost.</div>
-                    <button class="btn btn-primary" style="margin-top: 12px; width: 100%;">Start Learning</button>
-                </div>
-            </div>
-        </div>
+        {% endif %}
 
         <div style="text-align: center; margin-top: 48px;">
             <a href="/" class="btn btn-secondary" style="padding: 14px 32px;">← Return to CV Validator</a>
         </div>
     </div>
-
-    <script>
-        // Filter buttons functionality
-        const filterBtns = document.querySelectorAll('.filter-btn');
-        filterBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                filterBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-            });
-        });
-
-        // Job card click to expand (optional enhancement)
-        const jobCards = document.querySelectorAll('.job-card');
-        jobCards.forEach(card => {
-            card.addEventListener('click', (e) => {
-                if (!e.target.classList.contains('btn')) {
-                    card.style.transform = card.style.transform === 'scale(1.02)' ? 'scale(1)' : 'scale(1.02)';
-                }
-            });
-        });
-    </script>
 </body>
 </html>
