@@ -403,6 +403,7 @@
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
+        
 
         @media (max-width: 768px) {
             .container {
@@ -533,6 +534,23 @@
                     <div class="job-description">
                         {{ job.description }}
                     </div>
+
+                    {% if job.matched_skills %}
+<div class="keywords-display">
+  {% for s in job.matched_skills %}
+    <span class="keyword-tag">✅ {{ s }}</span>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if job.missing_skills %}
+<div class="keywords-display">
+  {% for s in job.missing_skills %}
+    <span class="keyword-tag" style="background:#fff3e0;color:#e65100;">➕ {{ s }}</span>
+  {% endfor %}
+</div>
+{% endif %}
+
 
                     <div class="job-footer">
                         {% if job.closing_date %}

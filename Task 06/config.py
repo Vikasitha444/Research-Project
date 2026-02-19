@@ -1,13 +1,10 @@
-# Configuration File for CV Validator Pro
-# Enter your Groq API Key here
+# Configuration file for CV Validator
+# Add your Groq API key here
 
-# Groq API Key
-# Get your free API key from: https://console.groq.com/keys
-GROQ_API_KEY = "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"
+GROQ_API_KEY = "your-groq-api-key-here"
 
-# If you want to use your own API Key:
-# 1. Go to https://console.groq.com/keys
-# 2. Create a free account
-# 3. Generate an API Key
-# 4. Copy that Key to the GROQ_API_KEY variable in this file
-
+# To get a free API key:
+# 1. Visit https://console.groq.com
+# 2. Sign up for a free account
+# 3. Generate an API key
+# 4. Replace "your-groq-api-key-here" with your actual key
