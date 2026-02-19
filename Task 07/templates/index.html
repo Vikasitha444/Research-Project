@@ -1,1585 +1,368 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CV Validator Pro - Sri Lankan IT Market</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #1a1d2e;
-      min-height: 100vh;
-      color: #e8eaed;
-    }
-
-    /* Navbar */
-    .navbar {
-      background: #252839;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-    }
-
-    .nav-container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .logo {
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: #00d9c0;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .logo::before {
-      content: "▬";
-      color: #00d9c0;
-      font-size: 1.8rem;
-    }
-
-    .nav-menu {
-      display: flex;
-      gap: 2rem;
-      align-items: center;
-    }
-
-    .nav-link {
-      color: #9ba1ab;
-      text-decoration: none;
-      font-weight: 600;
-      transition: color 0.3s;
-    }
-
-    .nav-link:hover {
-      color: #00d9c0;
-    }
-
-    .btn-getstarted {
-      background: #00d9c0;
-      color: #1a1d2e;
-      padding: 0.75rem 1.5rem;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: 700;
-      transition: all 0.3s;
-    }
-
-    .btn-getstarted:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(0, 217, 192, 0.4);
-    }
-
-    /* Dashboard Header */
-    .dashboard-header {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
-
-    .header-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
-
-    .resume-dropdown {
-      background: transparent;
-      border: none;
-      color: #9ba1ab;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .resume-dropdown::after {
-      content: "▼";
-      font-size: 0.7rem;
-    }
-
-    /* Score Cards */
-    .score-cards {
-      display: grid;
-      grid-template-columns: auto repeat(4, 1fr);
-      gap: 2rem;
-      background: #252839;
-      padding: 2rem;
-      border-radius: 16px;
-      margin-bottom: 2rem;
-    }
-
-    .overall-score {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding-right: 2rem;
-      border-right: 2px solid #353849;
-    }
-
-    .score-circle {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      border: 8px solid #8b5cf6;
-      background: rgba(139, 92, 246, 0.1);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 1rem;
-    }
-
-    .score-number {
-      font-size: 2.5rem;
-      font-weight: 800;
-      color: #e8eaed;
-      line-height: 1;
-    }
-
-    .score-label {
-      font-size: 0.75rem;
-      color: #9ba1ab;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-
-    
-.score-circle{
-  border-color:#8b5cf6;
-  background: rgba(139, 92, 246, 0.10);
-}
-
-
-.score-circle.score-excellent{
-  border-color:#22c55e;                 
-  background: rgba(34, 197, 94, 0.12);
-  box-shadow: 0 0 0 6px rgba(34,197,94,0.08);
-}
-
-.score-circle.score-good{
-  border-color:#3b82f6;                 
-  background: rgba(59, 130, 246, 0.12);
-  box-shadow: 0 0 0 6px rgba(59,130,246,0.08);
-}
-
-.score-circle.score-warn{
-  border-color:#f59e0b;                 
-  background: rgba(245, 158, 11, 0.14);
-  box-shadow: 0 0 0 6px rgba(245,158,11,0.08);
-}
-
-.score-circle.score-bad{
-  border-color:#ef4444;                
-  background: rgba(239, 68, 68, 0.12);
-  box-shadow: 0 0 0 6px rgba(239,68,68,0.08);
-}
-
-    .dimension-card {
-      text-align: center;
-    }
-
-    .dimension-title {
-      font-size: 0.875rem;
-      color: #9ba1ab;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 1rem;
-      font-weight: 600;
-    }
-
-    .dimension-score {
-      font-size: 2rem;
-      font-weight: 800;
-      color: #e8eaed;
-      margin-bottom: 0.5rem;
-    }
-
-    .dimension-status {
-      display: inline-block;
-      padding: 0.4rem 1rem;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-    }
-
-    .status-excellent { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
-    .status-good { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
-    .status-needs-work { background: rgba(251, 146, 60, 0.2); color: #fb923c; }
-
-    /* Main Content */
-    .main-content {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 0 2rem 2rem 2rem;
-      display: grid;
-      grid-template-columns: 1fr 450px;
-      gap: 2rem;
-    }
-
-    .content-left {
-      display: flex;
-      flex-direction: column;
-      gap: 2rem;
-    }
-
-    .content-right {
-      background: #252839;
-      border-radius: 16px;
-      padding: 2rem;
-      height: fit-content;
-    }
-
-    .section-title {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #e8eaed;
-      margin-bottom: 1.5rem;
-    }
-
-    .greeting-card {
-      background: #252839;
-      border-radius: 16px;
-      padding: 2rem;
-    }
-
-    .greeting {
-      font-size: 2rem;
-      font-weight: 700;
-      color: #e8eaed;
-      margin-bottom: 0.5rem;
-    }
-
-    .sub-greeting {
-      color: #9ba1ab;
-      font-size: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .score-summary {
-  background: white;
-  padding: 2rem;
-  border-radius: 16px;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
-}
-
-.score-summary h2 {
-  font-size: 1.6rem;
-  font-weight: 800;
-  margin-bottom: .3rem;
-  color: #0f172a;
-}
-
-.score-summary .sub-text {
-  color: #64748b;
-  margin-bottom: 1rem;
-}
-
-.score-summary .score-text {
-  font-weight: 700;
-  margin-bottom: .75rem;
-  color: #0f172a;
-}
-
-/* progress bar */
-.score-bar {
-  height: 10px;
-  border-radius: 999px;
-  background: #eef2ff;
-  overflow: hidden;
-  margin-bottom: 1.4rem;
-}
-
-.score-fill {
-  height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(
-    90deg,
-    #ef4444 0%,
-    #f59e0b 35%,
-    #22c55e 100%
-  );
-}
-
-/* buttons */
-.summary-actions {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-
-.btn-outline {
-  background: white;
-  border: 1.5px solid #e2e8f0;
-  padding: .6rem 1.2rem;
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: .2s ease;
-}
-
-.btn-outline:hover {
-  background: #f8fafc;
-  transform: translateY(-1px);
-}
-
-
-    .score-summary p {
-      color: rgba(255, 255, 255, 0.9);
-      font-size: 1.1rem;
-      font-weight: 600;
-    }
-
-    .action-buttons {
-      display: flex;
-      gap: 1rem;
-    }
-
-    .btn {
-      flex: 1;
-      padding: 1rem;
-      border: none;
-      border-radius: 10px;
-      font-size: 0.9rem;
-      font-weight: 700;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      transition: all 0.3s;
-    }
-
-    .btn-primary {
-      background: #00d9c0;
-      color: #1a1d2e;
-    }
-
-    .btn-secondary {
-      background: transparent;
-      color: #9ba1ab;
-      border: 2px solid #353849;
-    }
-
-    .btn:hover {
-      transform: translateY(-2px);
-    }
-
-    /* Recommendations */
-    .recommendations-card {
-      background: #252839;
-      border-radius: 16px;
-      padding: 2rem;
-    }
-
-    .recommendation-item {
-      padding: 1rem;
-      background: rgba(251, 146, 60, 0.1);
-      border-left: 4px solid #fb923c;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-    }
-
-    .recommendation-item p {
-      color: #e8eaed;
-      line-height: 1.6;
-    }
-
-    /* Resume Preview */
-    .resume-preview-title {
-      font-size: 1rem;
-      color: #9ba1ab;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 1.5rem;
-      font-weight: 600;
-    }
-
-    .pdf-viewer {
-      width: 100%;
-      height: 600px;
-      border: 2px solid #353849;
-      border-radius: 12px;
-      background: #1a1d2e;
-    }
-
-    /* Tabs */
-    .tabs {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 2rem;
-      border-bottom: 2px solid #353849;
-      flex-wrap: wrap;
-    }
-
-    .tab {
-      padding: 1rem 2rem;
-      background: transparent;
-      border: none;
-      color: #9ba1ab;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      border-bottom: 3px solid transparent;
-      transition: all 0.3s;
-      position: relative;
-      top: 2px;
-    }
-
-    .tab:hover {
-      color: #00d9c0;
-    }
-
-    .tab.active {
-      color: #00d9c0;
-      border-bottom-color: #00d9c0;
-    }
-
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-
-    /* Validation Grid */
-    .validation-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .validation-item {
-      background: #252839;
-      border-radius: 12px;
-      padding: 1.5rem;
-      border-left: 5px solid #353849;
-      transition: all 0.3s;
-    }
-
-    .validation-item:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-    }
-
-    .validation-item.success { border-left-color: #22c55e; }
-    .validation-item.warning { border-left-color: #fb923c; }
-    .validation-item.error { border-left-color: #ef4444; }
-    .validation-item.info { border-left-color: #3b82f6; }
-
-    .validation-item h3 {
-      font-size: 1.125rem;
-      margin-bottom: 0.75rem;
-      color: #e8eaed;
-    }
-
-    .validation-item .value {
-      font-weight: 700;
-      color: #00d9c0;
-      font-size: 1rem;
-      margin: 0.5rem 0;
-    }
-
-    .validation-item .message {
-      color: #9ba1ab;
-      font-size: 0.875rem;
-      line-height: 1.6;
-    }
-
-    .score-badge {
-      display: inline-block;
-      background: rgba(139, 92, 246, 0.2);
-      color: #a78bfa;
-      padding: 0.5rem 1rem;
-      border-radius: 20px;
-      font-size: 0.875rem;
-      font-weight: 700;
-      margin-top: 1rem;
-    }
-
-    /* Job Cards */
-    .job-card {
-      background: #252839;
-      border: 2px solid #353849;
-      border-radius: 15px;
-      padding: 2rem;
-      margin-bottom: 1.5rem;
-      transition: all 0.3s;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .job-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 5px;
-      height: 100%;
-      background: linear-gradient(180deg, #00d9c0 0%, #8b5cf6 100%);
-    }
-
-    .job-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
-      border-color: #00d9c0;
-    }
-
-    .job-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 1.5rem;
-      gap: 1.5rem;
-    }
-
-    .job-title h3 {
-      font-size: 1.5rem;
-      color: #e8eaed;
-      margin-bottom: 0.5rem;
-    }
-
-    .job-company {
-      color: #00d9c0;
-      font-weight: 600;
-      margin-bottom: 0.25rem;
-    }
-
-    .job-location {
-      color: #9ba1ab;
-      font-size: 0.875rem;
-    }
-
-    .match-badge {
-      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-      color: white;
-      padding: 1rem 1.5rem;
-      border-radius: 25px;
-      font-weight: 700;
-      text-align: center;
-      min-width: 120px;
-      box-shadow: 0 5px 15px rgba(34, 197, 94, 0.3);
-    }
-
-    .match-badge.excellent {
-      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
-    }
-
-    .match-badge.good {
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    }
-
-    .match-badge.potential {
-      background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
-    }
-
-    .job-description {
-      color: #9ba1ab;
-      line-height: 1.6;
-      margin: 1rem 0;
-      padding: 1rem;
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 10px;
-    }
-
-    .job-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 1rem;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
-    .apply-btn {
-      background: linear-gradient(135deg, #00d9c0 0%, #00b8a3 100%);
-      color: #1a1d2e;
-      padding: 0.75rem 2rem;
-      border: none;
-      border-radius: 25px;
-      font-weight: 700;
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-block;
-      transition: all 0.3s;
-    }
-
-    .apply-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(0, 217, 192, 0.4);
-    }
-
-    /* Keywords */
-    .keywords-display {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      margin: 1.5rem 0;
-    }
-
-    .keyword-tag {
-      background: rgba(139, 92, 246, 0.2);
-      color: #a78bfa;
-      padding: 0.5rem 1rem;
-      border-radius: 20px;
-      font-size: 0.875rem;
-      font-weight: 600;
-    }
-
-    /* Upload Section (Landing Page) */
-    .hero {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 4rem 2rem;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4rem;
-      align-items: center;
-      min-height: 80vh;
-    }
-
-    .hero-content h1 {
-      font-size: 3rem;
-      font-weight: 800;
-      color: white;
-      margin-bottom: 1.5rem;
-      line-height: 1.2;
-    }
-
-    .highlight {
-      background: linear-gradient(90deg, #00d9c0 0%, #00f5d4 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .hero-content p {
-      font-size: 1.25rem;
-      color: #9ba1ab;
-      margin-bottom: 2rem;
-      line-height: 1.6;
-    }
-
-    .stats {
-      display: flex;
-      gap: 2rem;
-      margin-top: 3rem;
-    }
-
-    .stat-item {
-      background: rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(10px);
-      padding: 1.5rem;
-      border-radius: 12px;
-      text-align: center;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .stat-number {
-      font-size: 2rem;
-      font-weight: 800;
-      color: #00d9c0;
-      margin-bottom: 0.5rem;
-    }
-
-    .stat-label {
-      color: #9ba1ab;
-      font-size: 0.875rem;
-    }
-
-    .hero-visual {
-      position: relative;
-    }
-
-    .floating-card {
-      background: #252839;
-      border-radius: 20px;
-      padding: 2rem;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      animation: float 3s ease-in-out infinite;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-20px); }
-    }
-
-    .score-preview {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
-    .preview-circle {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
-      font-weight: 800;
-      margin: 0 auto 1rem;
-    }
-
-    .preview-text {
-      color: #9ba1ab;
-      font-weight: 600;
-    }
-
-    .mini-checks {
-      display: grid;
-      gap: 1rem;
-    }
-
-    .mini-check {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .mini-check-icon {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      background: #22c55e;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 0.875rem;
-    }
-
-    .mini-check-text {
-      color: #e8eaed;
-      font-weight: 600;
-    }
-
-    .upload-section {
-      max-width: 700px;
-      margin: 0 auto;
-      padding: 4rem 2rem;
-    }
-
-    .upload-card {
-      background: #252839;
-      border-radius: 20px;
-      padding: 3rem;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .upload-area {
-      border: 3px dashed #353849;
-      border-radius: 15px;
-      padding: 3rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s;
-      background: rgba(255, 255, 255, 0.02);
-    }
-
-    .upload-area:hover {
-      border-color: #00d9c0;
-      background: rgba(0, 217, 192, 0.05);
-    }
-
-    .upload-text {
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: #e8eaed;
-      margin: 1rem 0 0.5rem;
-    }
-
-    .upload-hint {
-      color: #9ba1ab;
-      font-size: 0.875rem;
-    }
-
-    .file-input {
-      display: none;
-    }
-
-    .selected-file {
-      display: none;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(34, 197, 94, 0.1);
-      padding: 1rem 1.5rem;
-      border-radius: 10px;
-      margin: 1.5rem 0;
-      border: 2px solid #22c55e;
-    }
-
-    .selected-file.show {
-      display: flex;
-    }
-
-    .extra-inputs {
-      margin: 1.5rem 0;
-    }
-
-    .checkbox-row {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      cursor: pointer;
-      color: #e8eaed;
-    }
-
-    .checkbox-row input {
-      width: 20px;
-      height: 20px;
-      cursor: pointer;
-    }
-
-    .submit-btn {
-      width: 100%;
-      padding: 1rem;
-      background: linear-gradient(135deg, #00d9c0 0%, #00b8a3 100%);
-      color: #1a1d2e;
-      border: none;
-      border-radius: 10px;
-      font-size: 1.125rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-
-    .submit-btn:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 25px rgba(0, 217, 192, 0.4);
-    }
-
-    .submit-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    /* Loading */
-    .loading {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(26, 29, 46, 0.95);
-      z-index: 9999;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-    }
-
-    .loading.show {
-      display: flex;
-    }
-
-    .spinner {
-      border: 4px solid rgba(0, 217, 192, 0.3);
-      border-top: 4px solid #00d9c0;
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .loading-text {
-      color: white;
-      margin-top: 1.5rem;
-      font-size: 1.125rem;
-      font-weight: 600;
-    }
-
-    /* Footer */
-    .site-footer {
-      background: #252839;
-      padding: 3rem 2rem;
-      margin-top: 4rem;
-    }
-
-    .footer-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 2rem;
-    }
-
-    .footer-about h3 {
-      color: #00d9c0;
-      margin-bottom: 1rem;
-      font-size: 1.5rem;
-    }
-
-    .footer-about p {
-      color: #9ba1ab;
-      line-height: 1.6;
-    }
-
-    .footer-links h4 {
-      color: #e8eaed;
-      margin-bottom: 1rem;
-    }
-
-    .footer-links ul {
-      list-style: none;
-    }
-
-    .footer-links li {
-      margin-bottom: 0.5rem;
-    }
-
-    .footer-links a {
-      color: #9ba1ab;
-      text-decoration: none;
-      transition: color 0.3s;
-    }
-
-    .footer-links a:hover {
-      color: #00d9c0;
-    }
-
-    .footer-bottom {
-      text-align: center;
-      padding: 1.5rem;
-      border-top: 2px solid #353849;
-      margin-top: 2rem;
-      color: #9ba1ab;
-    }
-
-    .keywords-display{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-    }
-    .keyword-tag{
-      padding:6px 12px;
-      border-radius:999px;
-      font-size:0.85rem;
-      font-weight:600;
-    }
-
-
-    /* Responsive */
-    @media (max-width: 1200px) {
-      .main-content {
-        grid-template-columns: 1fr;
-      }
-
-      .score-cards {
-        grid-template-columns: 1fr;
-      }
-
-      .overall-score {
-        border-right: none;
-        border-bottom: 2px solid #353849;
-        padding-bottom: 2rem;
-        padding-right: 0;
-      }
-    }
-
-    @media (max-width: 968px) {
-      .hero {
-        grid-template-columns: 1fr;
-        text-align: center;
-      }
-
-      .hero-content h1 {
-        font-size: 2rem;
-      }
-
-      .stats {
-        justify-content: center;
-      }
-
-      .nav-menu {
-        display: none;
-      }
-
-      .validation-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .job-header {
-        flex-direction: column;
-      }
-    }
-
-    @media (max-width: 640px) {
-      .upload-card {
-        padding: 2rem;
-      }
-
-      .tab {
-        padding: 0.75rem 1rem;
-        font-size: 0.875rem;
-      }
-
-      .dimension-score {
-        font-size: 1.5rem;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Validator & Job Finder - Sri Lankan IT Market</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .flag {
+            font-size: 40px;
+            margin: 10px 0;
+        }
+
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            background: #f8f9ff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: #764ba2;
+            background: #f0f2ff;
+            transform: scale(1.02);
+        }
+
+        .upload-area.dragover {
+            border-color: #764ba2;
+            background: #e8ebff;
+        }
+
+        .upload-icon {
+            font-size: 64px;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .upload-area h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .upload-area p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        #cv_file {
+            display: none;
+        }
+
+        .file-info {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-info.show {
+            display: flex;
+        }
+
+        .file-info .icon {
+            font-size: 32px;
+        }
+
+        .file-info .details {
+            flex: 1;
+        }
+
+        .file-info .filename {
+            font-weight: bold;
+            color: #2e7d32;
+        }
+
+        .file-info .filesize {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .features {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .features h3 {
+            color: #333;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #f8f9ff;
+            border-radius: 8px;
+        }
+
+        .feature-item .emoji {
+            font-size: 24px;
+        }
+
+        .feature-item .text {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 25px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .upload-area {
+                padding: 30px 20px;
+            }
+
+            .feature-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-
-<nav class="navbar">
-  <div class="nav-container">
-    <a href="/" class="logo">CV Validator Pro</a>
-    <div class="nav-menu">
-      <a href="#enhance-cv" class="nav-link">Validate CV</a>
-     
-      <a href="/stats" class="nav-link">Statistics</a>
-    </div>
-    <a href="#enhance-cv" class="btn-getstarted">Get Started</a>
-  </div>
-</nav>
-
-{% if not results %}
-<!-- Landing Page -->
-<section class="hero">
-  <div class="hero-content">
-    <h1>Get your CV <span class="highlight">validated</span> for the Sri Lankan IT market</h1>
-    <p>AI-powered CV analysis based on HR surveys and industry standards. Get instant feedback with personalized job recommendations!</p>
-
-    <div class="stats">
-      <div class="stat-item">
-        <div class="stat-number">14+</div>
-        <div class="stat-label">Validation Checks</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number">AI</div>
-        <div class="stat-label">Powered Analysis</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-number">100%</div>
-        <div class="stat-label">Free Forever</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="hero-visual">
-    <div class="floating-card">
-      <div class="score-preview">
-        <div class="preview-circle">8.5/10</div>
-        <div class="preview-text">Resume Score Preview</div>
-      </div>
-
-      <div class="mini-checks">
-        <div class="mini-check">
-          <div class="mini-check-icon">✓</div>
-          <div class="mini-check-text">Professional Format</div>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 CV Validator & Job Finder</h1>
+            <div class="flag">🇱🇰</div>
+            <p>Tailored for Sri Lankan IT Market</p>
         </div>
-        <div class="mini-check">
-          <div class="mini-check-icon">✓</div>
-          <div class="mini-check-text">Technical Skills</div>
-        </div>
-        <div class="mini-check">
-          <div class="mini-check-icon">✓</div>
-          <div class="mini-check-text">GitHub Links</div>
-        </div>
-        <div class="mini-check">
-          <div class="mini-check-icon">✓</div>
-          <div class="mini-check-text">Contact Details</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
-<section class="upload-section" id="enhance-cv">
-  <div class="upload-card">
-    <form method="POST" enctype="multipart/form-data" id="uploadForm">
-      <div class="upload-area" id="uploadArea">
-        <div style="font-size:48px">📁</div>
-        <div class="upload-text">Drop your CV here or click to upload</div>
-        <div class="upload-hint">PDF format, maximum 16MB</div>
-        <input type="file" name="cv_file" accept=".pdf" class="file-input" id="fileInput" required>
-      </div>
-
-      <div class="selected-file" id="selectedFile">
-        <span id="fileName"></span>
-        <button type="button" style="background:none;border:none;cursor:pointer;font-size:20px;color:#9ba1ab" id="clearBtn">✕</button>
-      </div>
-
-      <div class="extra-inputs">
-        <label class="checkbox-row">
-          <input type="checkbox" name="blind_mode">
-          <span><b>Blind Mode</b> — ignore photo & school exam results for fair screening</span>
-        </label>
-      </div>
-
-      <button type="submit" class="submit-btn" id="submitBtn" disabled>
-        🚀 Analyze My CV & Find Jobs
-      </button>
-    </form>
-  </div>
-</section>
-
-<footer class="site-footer">
-  <div class="footer-container">
-    <div class="footer-about">
-      <h3>CV Validator Pro</h3>
-      <p>AI-powered CV analysis tailored for the Sri Lankan IT market. Get instant feedback and discover matching job opportunities.</p>
-    </div>
-
-    <div class="footer-links">
-      <h4>Quick Links</h4>
-      <ul>
-        <li><a href="#enhance-cv">Upload CV</a></li>
-        <li><a href="/stats">Statistics</a></li>
-      </ul>
-    </div>
-
-    <div class="footer-contact">
-      <h4>Contact</h4>
-      <p style="color: #9ba1ab;">Email: support@cvvalidator.lk</p>
-      <p style="color: #9ba1ab;">🇱🇰 Sri Lanka</p>
-    </div>
-  </div>
-
-  <div class="footer-bottom">
-    <p>© 2025 CV Validator Pro. All rights reserved.</p>
-  </div>
-</footer>
-
-{% else %}
-
-<!-- Results Dashboard -->
-<div class="dashboard-header">
-  
-
-  <!-- Score Cards -->
-  <div class="score-cards">
-    <div class="overall-score">
-      <div class="score-circle
-  {% if results.overall.score >= 8 %} score-excellent
-  {% elif results.overall.score >= 6 %} score-good
-  {% elif results.overall.score >= 4 %} score-warn
-  {% else %} score-bad
-  {% endif %}">
-  <div class="score-number">{{ results.overall.score }}</div>
-</div>
-
-      <div class="score-label">Overall</div>
-    </div>
-
-    {% if results.dimensions %}
-    <div class="dimension-card">
-      <div class="dimension-title">Impact</div>
-      <div class="dimension-score">{{ results.dimensions.impact }}/100</div>
-      <span class="dimension-status {% if results.dimensions.impact >= 85 %}status-excellent{% elif results.dimensions.impact >= 70 %}status-good{% else %}status-needs-work{% endif %}">
-        {% if results.dimensions.impact >= 85 %}Excellent
-        {% elif results.dimensions.impact >= 70 %}Good Start
-        {% else %}Needs Work
-        {% endif %}
-      </span>
-    </div>
-
-    <div class="dimension-card">
-      <div class="dimension-title">Brevity</div>
-      <div class="dimension-score">{{ results.dimensions.brevity }}/100</div>
-      <span class="dimension-status {% if results.dimensions.brevity >= 85 %}status-excellent{% elif results.dimensions.brevity >= 70 %}status-good{% else %}status-needs-work{% endif %}">
-        {% if results.dimensions.brevity >= 85 %}Excellent
-        {% elif results.dimensions.brevity >= 70 %}Good Start
-        {% else %}Needs Work
-        {% endif %}
-      </span>
-    </div>
-
-    <div class="dimension-card">
-      <div class="dimension-title">Style</div>
-      <div class="dimension-score">{{ results.dimensions.style }}/100</div>
-      <span class="dimension-status {% if results.dimensions.style >= 85 %}status-excellent{% elif results.dimensions.style >= 70 %}status-good{% else %}status-needs-work{% endif %}">
-        {% if results.dimensions.style >= 85 %}Excellent
-        {% elif results.dimensions.style >= 70 %}Good
-        {% else %}Needs Work
-        {% endif %}
-      </span>
-    </div>
-
-    <div class="dimension-card">
-      <div class="dimension-title">Skills</div>
-      <div class="dimension-score">{{ results.dimensions.skills }}/100</div>
-      <span class="dimension-status {% if results.dimensions.skills >= 85 %}status-excellent{% elif results.dimensions.skills >= 70 %}status-good{% else %}status-needs-work{% endif %}">
-        {% if results.dimensions.skills >= 85 %}Excellent
-        {% elif results.dimensions.skills >= 70 %}Good Start
-        {% else %}Needs Work
-        {% endif %}
-      </span>
-    </div>
-    {% endif %}
-  </div>
-</div>
-
-<!-- Main Content -->
-<div class="main-content">
-  <div class="content-left">
-    <!-- Greeting Card -->
-    <div class="greeting-card">
-      <h2 class="greeting">Good morning.</h2>
-      <p class="sub-greeting">Welcome to your resume review.</p>
-
-      <div class="score-summary">
-
-  <p class="score-text">
-    Your resume scored <b>{{ results.overall.score }}</b> out of 10.
-  </p>
-
-  {% set percent = results.overall.score * 10 %}
-
-  <div class="score-bar">
-    <div class="score-fill" style="width: {{ percent }}%;"></div>
-  </div>
-</div>
-
-
-      <div class="action-buttons">
-        <a href="#" onclick="showTab('validation'); return false;" class="btn btn-primary">
-          📋 Explain My Score
-        </a>
-        <a href="/" class="btn btn-secondary">
-          🔄 Validate Another CV
-        </a>
-      </div>
-    </div>
-
-    <!-- Recommendations -->
-    <div class="recommendations-card">
-      <h3 class="section-title">RECOMMENDATIONS</h3>
-      <div class="recommendation-item">
-  {% if results.overall.score >= 8.5 %}
-    <p>🔥 Excellent CV! You’re very close to being interview-ready. Only minor refinements will make it even stronger.</p>
-
-  {% elif results.overall.score >= 7 %}
-    <p>👍 Good CV overall. A few targeted improvements below can significantly increase your chances of getting shortlisted.</p>
-
-  {% elif results.overall.score >= 5 %}
-    <p>⚡ Fair CV, but several areas need improvement before you start applying seriously. Focus on strengthening your impact and formatting.</p>
-
-  {% else %}
-    <p>🚨 This CV needs major improvement. Add clearer achievements, technical projects, and polish the structure to compete in the Sri Lankan IT market.</p>
-  {% endif %}
-</div>
-
-      {% if results.keywords.found_keywords|length < 10 %}
-      <div class="recommendation-item">
-        <p>🔑 Add more technical keywords (currently {{ results.keywords.found_keywords|length }}). Aim for 10+ relevant skills.</p>
-      </div>
-      {% endif %}
-
-      {% if results.github.score < 7 %}
-      <div class="recommendation-item">
-        <p>🔗 Add working GitHub repository links to showcase your projects.</p>
-      </div>
-      {% endif %}
-
-      {% if results.achievements.score < 7 %}
-      <div class="recommendation-item">
-        <p>📊 Include quantifiable achievements (e.g., "Improved performance by 40%").</p>
-      </div>
-      {% endif %}
-    </div>
-
-    <!-- Tabs Section -->
-    <div>
-      <div class="tabs">
-        <button class="tab active" onclick="showTab('validation')">📋 CV Validation</button>
-        <button class="tab" onclick="showTab('jobs')">💼 Job Recommendations ({{ results.job_recommendations|length }})</button>
-        <button class="tab" onclick="showTab('keywords')">🔑 Your Skills</button>
-      </div>
-
-      <!-- Validation Tab -->
-      <div id="validation" class="tab-content active">
-        <div class="validation-grid">
-          {% for key, result in results.items() %}
-            {% if key not in ['overall', 'job_recommendations', 'llm', 'dimensions', 'preview_id', 'preview_filename', 'preview_url'] %}
-            <div class="validation-item {{ result.status }}">
-              <h3>
-                {% if key == 'page_count' %}📄 Page Count
-                {% elif key == 'gpa' %}🎓 GPA
-                {% elif key == 'professional_email' %}📧 Email
-                {% elif key == 'photo' %}📷 Photo
-                {% elif key == 'ol_al' %}📚 O/L & A/L
-                {% elif key == 'formatting' %}✨ Formatting
-                {% elif key == 'specialization' %}💻 Specialization
-                {% elif key == 'github' %}🔗 GitHub
-                {% elif key == 'skills' %}🛠️ Skills
-                {% elif key == 'keywords' %}🔑 Keywords
-                {% elif key == 'contact' %}📞 Contact Info
-                {% elif key == 'action_verbs' %}⚡ Action Verbs
-                {% elif key == 'achievements' %}🏆 Achievements
-                {% elif key == 'summary' %}📝 Summary
-                {% endif %}
-              </h3>
-              <div class="value">{{ result.value }}</div>
-              <div class="message">{{ result.message }}</div>
-              {% if result.score is defined %}
-              <span class="score-badge">Score: {{ result.score }}/10</span>
-              {% endif %}
+        <form id="uploadForm" method="POST" enctype="multipart/form-data">
+            <div class="upload-area" id="uploadArea">
+                <div class="upload-icon">📄</div>
+                <h3>Upload Your CV</h3>
+                <p>Drag & drop your PDF here or click to browse</p>
+                <input type="file" name="cv_file" id="cv_file" accept=".pdf" required>
             </div>
-            {% endif %}
-          {% endfor %}
-        </div>
 
-        {% if results.llm %}
-        <div class="validation-item {{ results.llm.status }}" style="margin-top: 1.5rem;">
-          <h3>🤖 AI HR Manager Analysis</h3>
-          <div class="value">{{ results.llm.passed }}/{{ results.llm.total }} Criteria Passed</div>
-          <div class="message">{{ results.llm.message }}</div>
-          <span class="score-badge">Score: {{ results.llm.score }}/10</span>
-        </div>
-        {% endif %}
-
-        <div class="action-buttons">
-          <a href="/" class="btn btn-primary">🔄 Analyze Another CV</a>
-    <button onclick="window.print()" class="btn btn-secondary">🖨️ Print Report</button>
-    
-        </div>
-
-      </div>
-
-      <!-- Jobs Tab -->
-      <div id="jobs" class="tab-content">
-        {% if results.job_recommendations and results.job_recommendations|length > 0 %}
-        <div style="margin-bottom: 2rem;">
-          <h2 style="color: #e8eaed; margin-bottom: 1rem;">💼 Recommended Jobs for You</h2>
-          <p style="color: #9ba1ab;">Based on {{ results.keywords.found_keywords|length }} technical skills detected in your CV</p>
-        </div>
-
-        {% for job in results.job_recommendations %}
-        <div class="job-card">
-          <div class="job-header">
-            <div class="job-title">
-              <h3>{{ job.title }}</h3>
-              <div class="job-company">🏢 {{ job.company }}</div>
-              <div class="job-location">📍 {{ job.location }}</div>
+            <div class="file-info" id="fileInfo">
+                <span class="icon">✅</span>
+                <div class="details">
+                    <div class="filename" id="fileName"></div>
+                    <div class="filesize" id="fileSize"></div>
+                </div>
             </div>
-            <div class="match-badge {{ job.match_level|lower }}">
-              {{ job.match_percentage }}%
-              <div style="font-size: 0.75rem; margin-top: 0.25rem;">{{ job.match_level }}</div>
+
+            <button type="submit" class="submit-btn" id="submitBtn" disabled>
+                🚀 Validate CV & Find Jobs
+            </button>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analyzing your CV and finding matching jobs...</p>
             </div>
-          </div>
+        </form>
 
-         <div class="job-description">{{ job.description }}</div>
-         
-
-
-{% if job.matched_skills and job.matched_skills|length > 0 %}
-  <div class="keywords-display" style="margin-top: 0.75rem;">
-    {% for s in job.matched_skills %}
-      <span class="keyword-tag" style="background:#1f7a3a;color:#eaffef;">✅ {{ s }}</span>
-    {% endfor %}
-  </div>
-{% endif %}
-
-{% if job.missing_skills and job.missing_skills|length > 0 %}
-  <div class="keywords-display" style="margin-top: 0.5rem;">
-    {% for s in job.missing_skills %}
-      <span class="keyword-tag" style="background:#3a2a1f;color:#ffd9bf;">➕ {{ s }}</span>
-    {% endfor %}
-  </div>
-{% endif %}
-
-
-          <div class="job-footer">
-            {% if job.closing_date %}
-            <div style="color: #9ba1ab; font-size: 0.875rem;">📅 Closes: {{ job.closing_date }}</div>
-            {% else %}
-            <div style="color: #9ba1ab; font-size: 0.875rem;">📅 Apply ASAP</div>
-            {% endif %}
-
-            {% if job.url %}
-            <a href="{{ job.url }}" target="_blank" class="apply-btn">Apply Now 🚀</a>
-            {% else %}
-            <button class="apply-btn" disabled style="opacity: 0.5;">No Link Available</button>
-            {% endif %}
-          </div>
+        <div class="features">
+            <h3>✨ What We Check</h3>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <span class="emoji">📝</span>
+                    <span class="text">Professional Format</span>
+                </div>
+                <div class="feature-item">
+                    <span class="emoji">💻</span>
+                    <span class="text">Technical Skills</span>
+                </div>
+                <div class="feature-item">
+                    <span class="emoji">🔗</span>
+                    <span class="text">GitHub Links</span>
+                </div>
+                <div class="feature-item">
+                    <span class="emoji">📧</span>
+                    <span class="text">Contact Info</span>
+                </div>
+                <div class="feature-item">
+                    <span class="emoji">🎓</span>
+                    <span class="text">Education</span>
+                </div>
+                <div class="feature-item">
+                    <span class="emoji">💼</span>
+                    <span class="text">Job Matching</span>
+                </div>
+            </div>
         </div>
-        {% endfor %}
-        {% else %}
-        <div style="text-align: center; padding: 4rem 2rem; color: #9ba1ab;">
-          <div style="font-size: 5rem; margin-bottom: 1rem;">😔</div>
-          <p style="font-size: 1.25rem; margin-bottom: 0.5rem;">No matching jobs found</p>
-          <p style="font-size: 0.875rem;">Make sure topjobs_it_jobs.csv file is present</p>
-        </div>
-        {% endif %}
-      </div>
-
-      <!-- Keywords Tab -->
-      <div id="keywords" class="tab-content">
-        <h2 style="margin-bottom: 1.5rem; color: #e8eaed;">🔑 Technical Skills Found in Your CV</h2>
-        
-        {% if results.keywords.found_keywords and results.keywords.found_keywords|length > 0 %}
-        <div class="keywords-display">
-          {% for keyword in results.keywords.found_keywords %}
-          <span class="keyword-tag">{{ keyword }}</span>
-          {% endfor %}
-        </div>
-        
-        <div class="validation-item info" style="margin-top: 2rem;">
-          <h3>💡 Skill Analysis</h3>
-          <div class="value">{{ results.keywords.found_keywords|length }} skills detected</div>
-          <div class="message">{{ results.keywords.message }}</div>
-        </div>
-        {% else %}
-        <div style="text-align: center; padding: 4rem 2rem; color: #9ba1ab;">
-          <div style="font-size: 5rem; margin-bottom: 1rem;">🔍</div>
-          <p style="font-size: 1.25rem;">No technical keywords detected</p>
-          <p style="font-size: 0.875rem; margin-top: 0.5rem;">Add more technical skills to your CV</p>
-        </div>
-        {% endif %}
-      </div>
-
-      
     </div>
-  </div>
 
-  <!-- Right Sidebar - Resume Preview -->
-  <div class="content-right">
-    <div class="resume-preview-title">Your Resume</div>
-    {% if results.preview_url %}
-    <iframe src="{{ results.preview_url }}" class="pdf-viewer"></iframe>
-    {% else %}
-    <div style="text-align: center; padding: 3rem; color: #9ba1ab;">
-      <div style="font-size: 3rem; margin-bottom: 1rem;">📄</div>
-      <p>Resume preview not available</p>
-    </div>
-    {% endif %}
-  </div>
-</div>
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('cv_file');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const submitBtn = document.getElementById('submitBtn');
+        const uploadForm = document.getElementById('uploadForm');
+        const loading = document.getElementById('loading');
 
-{% endif %}
+        // Click to upload
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
 
-<div class="loading" id="loading">
-  <div class="spinner"></div>
-  <div class="loading-text">Analyzing your CV and finding matching jobs...</div>
-</div>
+        // File selection
+        fileInput.addEventListener('change', (e) => {
+            handleFile(e.target.files[0]);
+        });
 
-<script>
-  const uploadArea = document.getElementById('uploadArea');
-  const fileInput = document.getElementById('fileInput');
-  const selectedFile = document.getElementById('selectedFile');
-  const fileName = document.getElementById('fileName');
-  const clearBtn = document.getElementById('clearBtn');
-  const submitBtn = document.getElementById('submitBtn');
-  const uploadForm = document.getElementById('uploadForm');
-  const loading = document.getElementById('loading');
+        // Drag and drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
 
-  function showFile(name) {
-    fileName.textContent = name;
-    selectedFile.classList.add('show');
-    submitBtn.disabled = false;
-  }
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
 
-  if (uploadArea && fileInput) {
-    uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file && file.type === 'application/pdf') {
+                fileInput.files = e.dataTransfer.files;
+                handleFile(file);
+            } else {
+                alert('Please upload a PDF file only!');
+            }
+        });
 
-    uploadArea.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      uploadArea.style.borderColor = '#00d9c0';
-      uploadArea.style.background = 'rgba(0, 217, 192, 0.05)';
-    });
+        function handleFile(file) {
+            if (file) {
+                fileName.textContent = file.name;
+                fileSize.textContent = `${(file.size / 1024 / 1024).toFixed(2)} MB`;
+                fileInfo.classList.add('show');
+                submitBtn.disabled = false;
+            }
+        }
 
-    uploadArea.addEventListener('dragleave', () => {
-      uploadArea.style.borderColor = '#353849';
-      uploadArea.style.background = 'rgba(255, 255, 255, 0.02)';
-    });
-
-    uploadArea.addEventListener('drop', (e) => {
-      e.preventDefault();
-      uploadArea.style.borderColor = '#353849';
-      uploadArea.style.background = 'rgba(255, 255, 255, 0.02)';
-      const files = e.dataTransfer.files;
-      if (files.length > 0 && files[0].type === 'application/pdf') {
-        fileInput.files = files;
-        showFile(files[0].name);
-      } else {
-        alert('Please upload a PDF file only!');
-      }
-    });
-
-    fileInput.addEventListener('change', (e) => {
-      if (e.target.files.length > 0) showFile(e.target.files[0].name);
-    });
-
-    if (clearBtn) {
-      clearBtn.addEventListener('click', () => {
-        fileInput.value = '';
-        selectedFile.classList.remove('show');
-        submitBtn.disabled = true;
-      });
-    }
-
-    if (uploadForm && loading) {
-      uploadForm.addEventListener('submit', () => loading.classList.add('show'));
-    }
-  }
-
-  function showTab(tabName) {
-    const tabContents = document.querySelectorAll('.tab-content');
-    tabContents.forEach(content => content.classList.remove('active'));
-
-    const tabButtons = document.querySelectorAll('.tab');
-    tabButtons.forEach(button => button.classList.remove('active'));
-
-    document.getElementById(tabName).classList.add('active');
-    event.target.classList.add('active');
-  }
-
-  function updateGreeting() {
-    const hour = new Date().getHours();
-    let greeting = "Hello.";
-
-    if (hour >= 5 && hour < 12) {
-      greeting = "Good morning.";
-    } else if (hour >= 12 && hour < 17) {
-      greeting = "Good afternoon.";
-    } else if (hour >= 17 && hour < 21) {
-      greeting = "Good evening.";
-    } else {
-      greeting = "Good night.";
-    }
-
-    const el = document.getElementById("greetingText");
-    if (el) el.textContent = greeting;
-  }
-
-  updateGreeting();
-</script>
-
+        // Form submission
+        uploadForm.addEventListener('submit', () => {
+            loading.classList.add('show');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+        });
+    </script>
 </body>
 </html>

@@ -403,7 +403,6 @@
             transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
-        
 
         @media (max-width: 768px) {
             .container {
@@ -464,47 +463,7 @@
         </div>
 
         <!-- Validation Tab -->
-        <div id="validation" class="tab-content active">
-            <div class="validation-grid">
-                {% for key, result in results.items() %}
-                    {% if key not in ['overall', 'job_recommendations', 'llm'] %}
-                    <div class="validation-item {{ result.status }}">
-                        <h3>
-                            {% if key == 'page_count' %}📄 Page Count
-                            {% elif key == 'gpa' %}🎓 GPA
-                            {% elif key == 'professional_email' %}📧 Email
-                            {% elif key == 'photo' %}📷 Photo
-                            {% elif key == 'ol_al' %}📚 O/L & A/L
-                            {% elif key == 'formatting' %}✨ Formatting
-                            {% elif key == 'specialization' %}💻 Specialization
-                            {% elif key == 'github' %}🔗 GitHub
-                            {% elif key == 'skills' %}🛠️ Skills
-                            {% elif key == 'keywords' %}🔑 Keywords
-                            {% elif key == 'contact' %}📞 Contact Info
-                            {% elif key == 'action_verbs' %}⚡ Action Verbs
-                            {% elif key == 'achievements' %}🏆 Achievements
-                            {% elif key == 'summary' %}📝 Summary
-                            {% endif %}
-                        </h3>
-                        <div class="value">{{ result.value }}</div>
-                        <div class="message">{{ result.message }}</div>
-                        {% if result.score is defined %}
-                        <span class="score-badge">Score: {{ result.score }}/10</span>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
-
-            {% if results.llm %}
-            <div class="validation-item {{ results.llm.status }}" style="margin-top: 20px;">
-                <h3>🤖 AI HR Manager Analysis</h3>
-                <div class="value">{{ results.llm.passed }}/{{ results.llm.total }} Criteria Passed</div>
-                <div class="message">{{ results.llm.message }}</div>
-                <span class="score-badge">Score: {{ results.llm.score }}/10</span>
-            </div>
-            {% endif %}
-        </div>
+       
 
         <!-- Jobs Tab -->
         <div id="jobs" class="tab-content">
@@ -534,23 +493,6 @@
                     <div class="job-description">
                         {{ job.description }}
                     </div>
-
-                    {% if job.matched_skills %}
-<div class="keywords-display">
-  {% for s in job.matched_skills %}
-    <span class="keyword-tag">✅ {{ s }}</span>
-  {% endfor %}
-</div>
-{% endif %}
-
-{% if job.missing_skills %}
-<div class="keywords-display">
-  {% for s in job.missing_skills %}
-    <span class="keyword-tag" style="background:#fff3e0;color:#e65100;">➕ {{ s }}</span>
-  {% endfor %}
-</div>
-{% endif %}
-
 
                     <div class="job-footer">
                         {% if job.closing_date %}
