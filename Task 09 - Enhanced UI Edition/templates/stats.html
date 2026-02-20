@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Statistics - CV Validator Pro</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #1a1d2e;
+      min-height: 100vh;
+      color: #e8eaed;
+    }
+
+    /* Navbar (same as index) */
+    .navbar {
+      background: #252839;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .nav-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #00d9c0;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo::before {
+      content: "▬";
+      color: #00d9c0;
+      font-size: 1.8rem;
+    }
+
+    .nav-menu {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .nav-link {
+      color: #9ba1ab;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s;
+    }
+
+    .nav-link:hover { color: #00d9c0; }
+
+    .btn-getstarted {
+      background: #00d9c0;
+      color: #1a1d2e;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.3s;
+    }
+
+    .btn-getstarted:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 217, 192, 0.4);
+    }
+
+    /* Page container */
+    .page {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .header {
+      background: #252839;
+      border-radius: 16px;
+      padding: 2rem;
+      border: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #e8eaed;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .header p {
+      color: #9ba1ab;
+      font-weight: 600;
+      margin-top: 0.5rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1rem;
+      border-radius: 999px;
+      background: rgba(139, 92, 246, 0.15);
+      border: 1px solid rgba(139, 92, 246, 0.35);
+      color: #a78bfa;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    /* Stats grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      grid-column: span 4;
+      background: #252839;
+      border-radius: 16px;
+      padding: 2rem;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+      transition: transform 0.25s ease, border-color 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 5px;
+      height: 100%;
+      background: linear-gradient(180deg, #00d9c0 0%, #8b5cf6 100%);
+      opacity: 0.9;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(0, 217, 192, 0.35);
+    }
+
+    .stat-label {
+      color: #9ba1ab;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+
+    .stat-number {
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: #e8eaed;
+      line-height: 1.1;
+    }
+
+    .stat-hint {
+      margin-top: 0.75rem;
+      color: #9ba1ab;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    /* Sections */
+    .section {
+      background: #252839;
+      border-radius: 16px;
+      padding: 2rem;
+      border: 1px solid rgba(255,255,255,0.08);
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #e8eaed;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    /* Grade distribution */
+    .grade-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 1rem;
+    }
+
+    .grade-item {
+      grid-column: span 3;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .grade-item::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 5px; height: 100%;
+      background: #353849;
+    }
+
+    .grade-item.excellent::before { background: #22c55e; }
+    .grade-item.good::before { background: #3b82f6; }
+    .grade-item.fair::before { background: #fb923c; }
+    .grade-item.needs::before { background: #ef4444; }
+
+    .grade-name {
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: #e8eaed;
+      margin-bottom: 0.5rem;
+    }
+
+    .grade-count {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #00d9c0;
+    }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    thead {
+      background: rgba(255,255,255,0.04);
+    }
+
+    th, td {
+      padding: 14px 16px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      font-size: 0.95rem;
+    }
+
+    th {
+      color: #9ba1ab;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 800;
+      font-size: 0.78rem;
+    }
+
+    tbody tr:hover {
+      background: rgba(0, 217, 192, 0.06);
+    }
+
+    .score-badge {
+      display: inline-block;
+      background: rgba(139, 92, 246, 0.2);
+      color: #a78bfa;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.85rem;
+      border: 1px solid rgba(139, 92, 246, 0.35);
+      white-space: nowrap;
+    }
+
+    .ai-badge {
+      display: inline-block;
+      background: rgba(0, 217, 192, 0.12);
+      color: #00d9c0;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 0.85rem;
+      border: 1px solid rgba(0, 217, 192, 0.3);
+      white-space: nowrap;
+    }
+
+    .grade-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      font-weight: 900;
+      font-size: 0.85rem;
+      white-space: nowrap;
+      border: 1px solid transparent;
+    }
+
+    .grade-excellent { background: rgba(34, 197, 94, 0.15); color: #22c55e; border-color: rgba(34,197,94,0.35); }
+    .grade-good { background: rgba(59, 130, 246, 0.15); color: #3b82f6; border-color: rgba(59,130,246,0.35); }
+    .grade-fair { background: rgba(251, 146, 60, 0.15); color: #fb923c; border-color: rgba(251,146,60,0.35); }
+    .grade-needs { background: rgba(239, 68, 68, 0.15); color: #ef4444; border-color: rgba(239,68,68,0.35); }
+
+    /* Empty state */
+    .no-data {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: #9ba1ab;
+    }
+
+    .no-data .icon {
+      font-size: 4rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.85rem 1.25rem;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 800;
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+      border: 2px solid transparent;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: #00d9c0;
+      color: #1a1d2e;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0, 217, 192, 0.35);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: #9ba1ab;
+      border-color: #353849;
+    }
+
+    .btn-secondary:hover {
+      transform: translateY(-2px);
+      border-color: rgba(0, 217, 192, 0.4);
+      color: #00d9c0;
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .stat-card { grid-column: span 6; }
+      .grade-item { grid-column: span 6; }
+    }
+
+    @media (max-width: 968px) {
+      .nav-menu { display: none; }
+      .stat-card { grid-column: span 12; }
+      .grade-item { grid-column: span 12; }
+      .page { padding: 1.5rem; }
+      .nav-container { padding: 1rem 1.25rem; }
+      .header { padding: 1.5rem; }
+      .section { padding: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="logo">CV Validator Pro</a>
+      <div class="nav-menu">
+        <a href="/#enhance-cv" class="nav-link">Validate CV</a>
+        <a href="/stats" class="nav-link" style="color:#00d9c0;">Statistics</a>
+      </div>
+      <a href="/#enhance-cv" class="btn-getstarted">Get Started</a>
+    </div>
+  </nav>
+
+  <main class="page">
+
+    <!-- Header -->
+    <div class="header">
+      <div>
+        <h1>📊 Statistics Dashboard</h1>
+        <p>Last {{ stats.days }} days analytics</p>
+      </div>
+      <div class="pill">📅 {{ stats.days }} Days</div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total CV Analyzed</div>
+        <div class="stat-number">{{ stats.total_runs }}</div>
+        <div class="stat-hint">Total submissions in selected range</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Average Score</div>
+        <div class="stat-number">{{ stats.avg_overall }}</div>
+        <div class="stat-hint">Mean overall score (out of 10)</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-label">Grade Categories</div>
+        <div class="stat-number">{{ stats.grade_distribution|length }}</div>
+        <div class="stat-hint">Different grades recorded</div>
+      </div>
+    </div>
+
+    <!-- Grade Distribution -->
+    {% if stats.grade_distribution %}
+    <section class="section">
+      <div class="section-title">📈 Grade Distribution</div>
+
+      <div class="grade-grid">
+        {% for grade_data in stats.grade_distribution %}
+          {% set g = grade_data.grade|lower %}
+          <div class="grade-item
+            {% if g == 'excellent' %}excellent
+            {% elif g == 'good' %}good
+            {% elif g == 'fair' %}fair
+            {% else %}needs
+            {% endif %}">
+            <div class="grade-name">{{ grade_data.grade }}</div>
+            <div class="grade-count">{{ grade_data.count }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    <!-- Recent Runs -->
+    {% if stats.recent_runs %}
+    <section class="section">
+      <div class="section-title">🕐 Recent CV Submissions</div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Filename</th>
+              <th>Overall</th>
+              <th>Grade</th>
+              <!-- <th>AI Score</th> -->
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for run in stats.recent_runs %}
+            <tr>
+              <td style="font-weight:700; color:#e8eaed;">
+                {{ run.filename[:40] }}{% if run.filename|length > 40 %}...{% endif %}
+              </td>
+              <td>
+                <span class="score-badge">{{ run.overall_score }}/10</span>
+              </td>
+              <td>
+                <span class="grade-badge
+                  {% if run.grade == 'Excellent' %}grade-excellent
+                  {% elif run.grade == 'Good' %}grade-good
+                  {% elif run.grade == 'Fair' %}grade-fair
+                  {% else %}grade-needs
+                  {% endif %}">
+                  {{ run.grade }}
+                </span>
+              </td>
+              <!-- <td>
+                <span class="ai-badge">{{ run.llm_score }}/10</span>
+              </td> -->
+              <td style="color:#9ba1ab; font-weight:600;">
+                {{ run.created_at[:10] }}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+    {% else %}
+    <section class="section">
+      <div class="no-data">
+        <div class="icon">📭</div>
+        <p style="font-size: 1.2rem; font-weight: 800; color:#e8eaed;">No data available yet</p>
+        <p style="margin-top: 8px;">Start analyzing CVs to see statistics here!</p>
+
+        <div class="actions">
+          <a href="/#enhance-cv" class="btn btn-primary">🚀 Analyze CV</a>
+          <a href="/" class="btn btn-secondary">← Back to Home</a>
+        </div>
+      </div>
+    </section>
+    {% endif %}
+
+    {% if stats.recent_runs %}
+    <div class="actions" style="margin-top: 1.5rem;">
+      <a href="/" class="btn btn-secondary">← Back to Home</a>
+      <a href="/#enhance-cv" class="btn btn-primary">🚀 Analyze New CV</a>
+    </div>
+    {% endif %}
+
+  </main>
+
+</body>
+</html>

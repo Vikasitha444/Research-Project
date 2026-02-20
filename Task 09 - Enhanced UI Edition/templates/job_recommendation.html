@@ -1,0 +1,127 @@
+<!-- templates/job_recommendation.html ✅ FULL UPDATED
+     - Fixes: 'results' is undefined by always using "results" passed from route
+     - This page reads results.job_recommendations (stored in session by your Flask route)
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Recommendations</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+  <style>
+    .jr-wrap{max-width:1100px;margin:0 auto;padding:24px}
+    .jr-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    .jr-title{font-size:28px;font-weight:800;margin:0}
+    .jr-sub{opacity:.8;margin:6px 0 0 0}
+    .jr-grid{display:grid;grid-template-columns:1fr;gap:14px}
+    .jr-card{border:1px solid #e5e7eb;border-radius:14px;padding:16px;background:#fff}
+    .jr-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+    .jr-role{font-size:18px;font-weight:800;margin:0 0 6px 0}
+    .jr-meta{opacity:.85}
+    .jr-desc{margin:10px 0 12px 0;line-height:1.5}
+    .jr-tags{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 12px 0}
+    .jr-pill{padding:6px 10px;border-radius:999px;background:#f1f5f9;font-size:12px}
+    .jr-pill.green{background:#dcfce7}
+    .jr-actions{display:flex;gap:10px;flex-wrap:wrap}
+    .jr-badge{padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700}
+    .jr-badge.good{background:#dcfce7}
+    .jr-badge.mid{background:#fef9c3}
+    .jr-badge.low{background:#fee2e2}
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="/" class="logo-link"><div class="logo">📄 CV Validator Pro</div></a>
+    <div class="nav-buttons">
+      <a href="/" class="btn-getstarted">← Back</a>
+    </div>
+  </div>
+</nav>
+
+<div class="jr-wrap">
+  <div class="jr-head">
+    <div>
+      <h1 class="jr-title">💼 Job Recommendations</h1>
+      <p class="jr-sub">
+        {% if filename %}Based on: <b>{{ filename }}</b>{% else %}Analyze a CV first to get recommendations.{% endif %}
+      </p>
+    </div>
+    <div>
+      <a class="rw-btn" href="/">Validate Another CV</a>
+    </div>
+  </div>
+
+  {% set jobs = results.get('job_recommendations', []) if results else [] %}
+
+  {% if not jobs or jobs|length == 0 %}
+    <div class="jr-card">
+      <h3 style="margin:0 0 6px 0;">No recommendations yet</h3>
+      <p style="margin:0;opacity:.85;">
+        Please upload and analyze your CV on the home page first.
+        Then click <b>“GO TO JOB RECOMMENDATIONS”</b>.
+      </p>
+    </div>
+  {% else %}
+    <div class="jr-grid">
+      {% for job in jobs %}
+      <div class="jr-card">
+        <div class="jr-top">
+          <div>
+            <h3 class="jr-role">{{ job.title }}</h3>
+            <div class="jr-meta">🏢 {{ job.company }} &nbsp;|&nbsp; 📍 {{ job.location }}</div>
+            <div class="jr-meta" style="margin-top:4px;">⏳ Closing: {{ job.closing_date }}</div>
+          </div>
+
+          {% set mp = job.match_percentage|float %}
+          <div>
+            <div class="jr-badge
+              {% if mp >= 70 %}good{% elif mp >= 50 %}mid{% else %}low{% endif %}">
+              {{ job.match_level }} • {{ job.match_percentage }}%
+            </div>
+            <div style="opacity:.7;font-size:12px;margin-top:6px;">
+              Level used: {{ job.cv_level_used }}
+            </div>
+          </div>
+        </div>
+
+        <p class="jr-desc">{{ job.description }}</p>
+
+        {% if job.matched_skills %}
+        <div style="font-weight:700;margin-top:6px;">Matched skills</div>
+        <div class="jr-tags">
+          {% for s in job.matched_skills %}
+            <span class="jr-pill green">{{ s }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if job.missing_skills %}
+        <div style="font-weight:700;margin-top:6px;">Missing skills (to improve match)</div>
+        <div class="jr-tags">
+          {% for s in job.missing_skills %}
+            <span class="jr-pill">{{ s }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="jr-actions">
+          {% if job.url %}
+            <a href="{{ job.url }}" target="_blank" class="rw-btn">Apply</a>
+          {% else %}
+            <span style="opacity:.7;">No direct link available</span>
+          {% endif %}
+          <a href="/" class="rw-btn">Back to Results</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+</div>
+
+</body>
+</html>

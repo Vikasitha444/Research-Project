@@ -1,0 +1,583 @@
+<!-- templates/index.html ✅ FULL UPDATED
+     - Fixes undefined variable: uses job_recommendations (NOT results)
+     - Your route already sends: results, filename, greeting, sub_greeting, job_recommendations
+     - Shows Job Recommendations section ONLY if job_recommendations exists
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CV Validator Pro - Sri Lankan IT Market</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="/" class="logo-link">
+      <div class="logo">📄 CV Validator Pro</div>
+    </a>
+
+    <div class="nav-menu">
+      <div class="nav-item has-dropdown">
+        <a href="#" class="nav-link">Resume ▾</a>
+        <div class="dropdown-menu">
+          <a href="#enhance-cv" class="dropdown-item">
+            <div class="dropdown-item-title">✨ Enhance CV</div>
+            <div class="dropdown-item-desc">Analyze your CV with suggestions</div>
+          </a>
+          <a href="/job-recommendations" class="dropdown-item">
+            <div class="dropdown-item-title">💼 Job Recommendation</div>
+            <div class="dropdown-item-desc">Get personalized job matches based on your CV</div>
+          </a>
+     
+          <a href="/stats" class="dropdown-item">
+            <div class="dropdown-item-title">📊 Statistics</div>
+            <div class="dropdown-item-desc">View platform usage and insights</div>
+          </a>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <a href="#enhance-cv" class="btn-getstarted">Get Started</a>
+    </div>
+
+    <button class="mobile-menu-btn" type="button">☰</button>
+  </div>
+</nav>
+
+{% if not results %}
+<!-- ==========================
+     LANDING PAGE
+========================== -->
+<section class="hero">
+  <div class="hero-content">
+    <h1>Get your CV <span class="highlight">validated</span> for the Sri Lankan IT market</h1>
+    <p>AI-powered CV analysis based on HR surveys and industry standards. Get instant feedback in just 5 minutes!</p>
+
+    <div class="stats">
+      <div class="stat-item">
+        <div class="stat-number">27+</div>
+        <div class="stat-label">Validation Checks</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">AI</div>
+        <div class="stat-label">Analysis</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">100%</div>
+        <div class="stat-label">Free</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-visual">
+    <div class="decorative-blob blob-1"></div>
+    <div class="decorative-blob blob-2"></div>
+
+    <div class="floating-card">
+      <div class="score-preview">
+        <div class="score-circle">8.5/10</div>
+        <div class="preview-text">Resume Score Preview</div>
+      </div>
+
+      <div class="mini-checks">
+        <div class="mini-check"><div class="mini-check-icon">✓</div><div class="mini-check-text">Professional Format</div></div>
+        <div class="mini-check"><div class="mini-check-icon">✓</div><div class="mini-check-text">Technical Skills</div></div>
+        <div class="mini-check"><div class="mini-check-icon">✓</div><div class="mini-check-text">Action Verbs</div></div>
+        <div class="mini-check"><div class="mini-check-icon">✓</div><div class="mini-check-text">Contact Details</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="upload-section" id="enhance-cv">
+  <div class="upload-card">
+    <form method="POST" enctype="multipart/form-data" id="uploadForm">
+      <div class="upload-area" id="uploadArea">
+        <div style="font-size:48px">📁</div>
+        <div class="upload-text">Drop your CV here or click to upload</div>
+        <div class="upload-hint">PDF format, maximum 16MB</div>
+        <input type="file" name="cv_file" accept=".pdf" class="file-input" id="fileInput" required>
+      </div>
+
+      <div class="selected-file" id="selectedFile">
+        <span id="fileName"></span>
+        <button type="button"
+                style="background:none;border:none;cursor:pointer;font-size:20px;color:#64748b"
+                id="clearBtn">✕</button>
+      </div>
+
+      <div class="extra-inputs">
+        <label class="checkbox-row">
+          <input type="checkbox" name="blind_mode">
+          <span><b>Blind Mode (Fair Screening)</b> — ignore photo & reduce school-exam importance</span>
+        </label>
+      </div>
+
+      <button type="submit" class="submit-btn" id="submitBtn" disabled>
+        🚀 Analyze My CV
+      </button>
+    </form>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="footer-container">
+    <div class="footer-about">
+      <h3>CV Validator Pro</h3>
+      <p>AI-powered CV analysis tailored for the Sri Lankan IT market. Get instant feedback and optimize your CVs.</p>
+    </div>
+
+    <div class="footer-links">
+      <h4>Quick Links</h4>
+      <ul>
+        <li><a href="#enhance-cv">Upload CV</a></li>
+        <li><a href="/job-recommendations">Job Recommendations</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-contact">
+      <h4>Contact</h4>
+      <p>Email: <a href="mailto:support@cvvalidatorpro.com">support@cvvalidatorpro.com</a></p>
+      <p>Phone: +94 77 123 4567</p>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <p>© 2025 CV Validator Pro. All rights reserved.</p>
+  </div>
+</footer>
+{% endif %}
+
+<!-- ✅ RESULTS UI -->
+{% if results %}
+
+{% set overall_10 = results.get('overall', {}).get('score', 0) %}
+{% set overall_100 = (overall_10 * 10) | round(0) %}
+
+{% set dims = results.get('dimensions') if results and results.get('dimensions') else {} %}
+{% set impact_100  = dims.get('impact', 0) %}
+{% set brevity_100 = dims.get('brevity', 0) %}
+{% set style_100   = dims.get('style', 0) %}
+{% set skills_100  = dims.get('skills', 0) %}
+
+<div class="rw-page">
+  <div class="rw-score-strip">
+    <div class="rw-score-left">
+      <div class="rw-score-circle">
+        <div class="rw-score-num">{{ overall_100 }}</div>
+        <div class="rw-score-label">OVERALL</div>
+      </div>
+    </div>
+
+    <div class="rw-mini-grid">
+      <div class="rw-mini-card">
+        <div class="rw-mini-title">IMPACT</div>
+        <div class="rw-mini-value">{{ impact_100 }}/100</div>
+        <div class="rw-mini-tag {{ 'tag-good' if impact_100 >= 70 else 'tag-warn' }}">
+          {{ 'GOOD' if impact_100 >= 70 else 'NEEDS WORK' }}
+        </div>
+      </div>
+
+      <div class="rw-mini-card">
+        <div class="rw-mini-title">BREVITY</div>
+        <div class="rw-mini-value">{{ brevity_100 }}/100</div>
+        <div class="rw-mini-tag {{ 'tag-good' if brevity_100 >= 70 else 'tag-warn' }}">
+          {{ 'GOOD START' if brevity_100 >= 70 else 'NEEDS WORK' }}
+        </div>
+      </div>
+
+      <div class="rw-mini-card">
+        <div class="rw-mini-title">STYLE</div>
+        <div class="rw-mini-value">{{ style_100 }}/100</div>
+        <div class="rw-mini-tag {{ 'tag-good' if style_100 >= 70 else 'tag-warn' }}">
+          {{ 'GOOD' if style_100 >= 70 else 'NEEDS WORK' }}
+        </div>
+      </div>
+
+      <div class="rw-mini-card">
+        <div class="rw-mini-title">SKILLS</div>
+        <div class="rw-mini-value">{{ skills_100 }}/100</div>
+        <div class="rw-mini-tag
+          {% if skills_100 >= 85 %} tag-excellent
+          {% elif skills_100 >= 70 %} tag-good
+          {% else %} tag-warn
+          {% endif %}">
+          {% if skills_100 >= 85 %} EXCELLENT
+          {% elif skills_100 >= 70 %} GOOD
+          {% else %} NEEDS WORK
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="rw-main">
+    <div class="rw-left">
+
+      <div class="rw-card">
+        <div class="rw-greeting">{{ greeting }}</div>
+        <div class="rw-sub">{{ sub_greeting }}</div>
+
+        <div class="rw-progress-wrap">
+          <div class="rw-progress-text">Your resume scored {{ overall_100 }} out of 100.</div>
+          <div class="rw-progress">
+            <div class="rw-progress-fill" style="width: {{ overall_100 }}%;"></div>
+          </div>
+
+          <button class="rw-btn" type="button"
+                  onclick="document.getElementById('rw-details').scrollIntoView({behavior:'smooth'})">
+            EXPLAIN MY SCORE
+          </button>
+
+          <a href="{{ url_for('job_recommendations') }}" class="rw-btn" style="margin-left:12px;">
+            💼 GO TO JOB RECOMMENDATIONS
+          </a>
+
+          <a href="/" class="rw-btn" style="margin-left:12px;">VALIDATE ANOTHER CV</a>
+        </div>
+      </div>
+
+      <div class="rw-card" id="rw-details">
+        <div class="rw-card-title">RECOMMENDATIONS</div>
+        <div class="rw-card-sub">
+          {% if overall_100 >= 85 %}
+            🚀 Excellent CV! Your resume is strong and competitive for most IT roles.
+            Minor tailoring for specific job descriptions will make it even better.
+          {% elif overall_100 >= 70 %}
+            👍 Good CV overall. A few targeted improvements below can significantly
+            increase your chances of getting shortlisted.
+          {% elif overall_100 >= 55 %}
+            ⚠️ Fair CV. Several important areas need improvement to meet current
+            Sri Lankan IT industry expectations.
+          {% else %}
+            ❗ Your CV needs improvement. Follow the key recommendations below to
+            strengthen structure, impact, and technical relevance.
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- ==========================
+           DETAILED CHECKS (your same UI)
+      ========================== -->
+      <div class="rw-card">
+        <div class="rw-card-title">DETAILED CHECKS</div>
+        <div class="rw-card-sub">validation results</div>
+
+        <!-- Basic -->
+        <div class="category">
+          <div class="category-title"><span>📋</span> Basic Validations</div>
+
+          <div class="check">
+            <div class="check-icon {{ 'pass' if results.page_count.status == 'success' else 'warn' }}">✓</div>
+            <div>
+              <div class="check-name">Page Count</div>
+              <div class="check-desc">{{ results.page_count.message }}</div>
+            </div>
+            <div class="check-badge">{{ results.page_count.value }}</div>
+            <div class="check-score">{{ results.page_count.score }}/10</div>
+          </div>
+
+          <div class="check">
+            <div class="check-icon {{ 'pass' if results.gpa.status == 'success' else 'warn' }}">✓</div>
+            <div>
+              <div class="check-name">GPA / CGPA</div>
+              <div class="check-desc">{{ results.gpa.message }}</div>
+
+              {% if results.gpa.evidence %}
+              <div class="evidence-wrap">
+                <div class="evidence-title">Evidence</div>
+                {% for ev in results.gpa.evidence %}
+                  <div class="evidence-item">“{{ ev }}”</div>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+            <div class="check-badge">{{ results.gpa.value }}</div>
+            <div class="check-score">{{ results.gpa.score }}/10</div>
+          </div>
+
+          <div class="check">
+            <div class="check-icon {{ 'pass' if results.specialization.status == 'success' else 'warn' }}">✓</div>
+            <div>
+              <div class="check-name">Specialization</div>
+              <div class="check-desc">{{ results.specialization.message }}</div>
+            </div>
+            <div class="check-badge">{{ results.specialization.value }}</div>
+            <div class="check-score">{{ results.specialization.score }}/10</div>
+          </div>
+        </div>
+
+        <!-- Standards -->
+        <div class="category">
+          <div class="category-title"><span>💼</span> Standards</div>
+
+          <div class="check">
+            <div class="check-icon {{ 'pass' if results.professional_email.status == 'success' else 'warn' }}">✓</div>
+            <div>
+              <div class="check-name">Email</div>
+              <div class="check-desc">{{ results.professional_email.message }}</div>
+            </div>
+            <div class="check-badge">{{ results.professional_email.value }}</div>
+            <div class="check-score">{{ results.professional_email.score }}/10</div>
+          </div>
+
+          <div class="check">
+            <div class="check-icon {{ 'pass' if results.photo.status == 'success' else 'info' }}">ℹ</div>
+            <div>
+              <div class="check-name">Photo</div>
+              <div class="check-desc">{{ results.photo.message }}</div>
+            </div>
+            <div class="check-badge">{{ results.photo.value }}</div>
+            <div class="check-score">{{ results.photo.score }}/10</div>
+          </div>
+
+          <div class="check">
+            <div class="check-icon {{ 'pass' if results.ol_al.status == 'success' else 'warn' }}">✓</div>
+            <div>
+              <div class="check-name">O/L &amp; A/L</div>
+              <div class="check-desc">{{ results.ol_al.message }}</div>
+
+              {% if results.ol_al.evidence %}
+              <div class="evidence-wrap">
+                <div class="evidence-title">Evidence</div>
+                {% for ev in results.ol_al.evidence %}
+                  <div class="evidence-item">“{{ ev }}”</div>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+            <div class="check-badge">{{ results.ol_al.value }}</div>
+            <div class="check-score">{{ results.ol_al.score }}/10</div>
+          </div>
+
+          <div class="check">
+            <div class="check-icon {{ 'pass' if results.formatting.status == 'success' else 'warn' }}">✓</div>
+            <div>
+              <div class="check-name">Formatting</div>
+              <div class="check-desc">{{ results.formatting.message }}</div>
+            </div>
+            <div class="check-badge">{{ results.formatting.value }}</div>
+            <div class="check-score">{{ results.formatting.score }}/10</div>
+          </div>
+        </div>
+
+        <!-- Technical -->
+        <div class="category">
+          <div class="category-title"><span>💻</span> Technical Content</div>
+
+          <div class="check">
+            <div class="check-icon {{ 'pass' if results.skills.status == 'success' else 'warn' }}">✓</div>
+            <div>
+              <div class="check-name">Skills</div>
+              <div class="check-desc">{{ results.skills.message }}</div>
+            </div>
+            <div class="check-badge">{{ results.skills.value }}</div>
+            <div class="check-score">{{ results.skills.score }}/10</div>
+          </div>
+
+          <div class="check">
+            <div class="check-icon {{ 'pass' if results.keywords.status == 'success' else 'warn' }}">✓</div>
+            <div>
+              <div class="check-name">Keywords</div>
+              <div class="check-desc">{{ results.keywords.message }}</div>
+            </div>
+            <div class="check-badge">{{ results.keywords.value }}</div>
+            <div class="check-score">{{ results.keywords.score }}/10</div>
+          </div>
+
+          {% if results.keywords.found_keywords %}
+          <div class="tags-section">
+            <div class="tags">
+              {% for keyword in results.keywords.found_keywords %}
+                <span class="tag">{{ keyword }}</span>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
+          <div class="check">
+            <div class="check-icon {{ 'pass' if results.github.status == 'success' else 'warn' }}">✓</div>
+            <div>
+              <div class="check-name">GitHub</div>
+              <div class="check-desc">{{ results.github.message }}</div>
+            </div>
+            <div class="check-badge">{{ results.github.value }}</div>
+            <div class="check-score">{{ results.github.score }}/10</div>
+          </div>
+
+          {% if results.github.repos %}
+          <div class="links-section">
+            {% for repo in results.github.repos %}
+            <div class="link-item">
+              <span class="link-dot {{ 'valid' if repo.valid else 'invalid' }}"></span>
+              <a href="{{ repo.url }}" target="_blank" class="link-url">{{ repo.url }}</a>
+            </div>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Content Quality -->
+        <div class="category">
+          <div class="category-title"><span>⭐</span> Content Quality</div>
+
+          <div class="check">
+            <div class="check-icon {{ 'pass' if results.summary.status == 'success' else 'info' }}">ℹ</div>
+            <div>
+              <div class="check-name">Summary</div>
+              <div class="check-desc">{{ results.summary.message }}</div>
+            </div>
+            <div class="check-badge">{{ results.summary.value }}</div>
+            <div class="check-score">{{ results.summary.score }}/10</div>
+          </div>
+
+          <div class="check">
+            <div class="check-icon {{ 'pass' if results.action_verbs.status == 'success' else 'warn' }}">✓</div>
+            <div>
+              <div class="check-name">Action Verbs</div>
+              <div class="check-desc">{{ results.action_verbs.message }}</div>
+            </div>
+            <div class="check-badge">{{ results.action_verbs.value }}</div>
+            <div class="check-score">{{ results.action_verbs.score }}/10</div>
+          </div>
+
+          {% if results.action_verbs.verbs %}
+          <div class="tags-section">
+            <div class="tags">
+              {% for verb in results.action_verbs.verbs %}
+                <span class="tag green">{{ verb }}</span>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
+          <div class="check">
+            <div class="check-icon {{ 'pass' if results.achievements.status == 'success' else 'warn' }}">✓</div>
+            <div>
+              <div class="check-name">Achievements</div>
+              <div class="check-desc">{{ results.achievements.message }}</div>
+            </div>
+            <div class="check-badge">{{ results.achievements.value }}</div>
+            <div class="check-score">{{ results.achievements.score }}/10</div>
+          </div>
+
+          <div class="check">
+            <div class="check-icon {{ 'pass' if results.contact.status == 'success' else 'warn' }}">✓</div>
+            <div>
+              <div class="check-name">Contact Info</div>
+              <div class="check-desc">{{ results.contact.message }}</div>
+            </div>
+            <div class="check-badge">{{ results.contact.value }}</div>
+            <div class="check-score">{{ results.contact.score }}/10</div>
+          </div>
+        </div>
+
+        <div style="text-align:center">
+          <a href="/" class="back-btn">← Validate Another CV</a>
+        </div>
+      </div>
+    </div>
+    <!-- RIGHT -->
+    <div class="rw-right">
+      <div class="rw-preview">
+        <div class="rw-preview-title">YOUR RESUME</div>
+
+        <div class="rw-preview-box">
+          {% if results.preview_url %}
+            <iframe class="rw-pdf-frame" src="{{ results.preview_url }}"></iframe>
+          {% else %}
+            <div class="rw-preview-hint">PDF preview not available.</div>
+          {% endif %}
+        </div>
+
+        <div class="rw-side-notes">
+          <div class="rw-note">
+            <div class="rw-note-title">Overall</div>
+            <div class="rw-note-desc">{{ results.overall.message }}</div>
+          </div>
+          <div class="rw-note">
+            <div class="rw-note-title">Email</div>
+            <div class="rw-note-desc">{{ results.professional_email.value }} — {{ results.professional_email.message }}</div>
+          </div>
+          <div class="rw-note">
+            <div class="rw-note-title">Keywords</div>
+            <div class="rw-note-desc">{{ results.keywords.value }} — {{ results.keywords.message }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endif %}
+
+<div class="loading" id="loading">
+  <div class="spinner"></div>
+  <div style="margin-top:20px;font-weight:600">Analyzing your CV...</div>
+</div>
+
+<script>
+  const uploadArea = document.getElementById('uploadArea');
+  const fileInput = document.getElementById('fileInput');
+  const selectedFile = document.getElementById('selectedFile');
+  const fileName = document.getElementById('fileName');
+  const clearBtn = document.getElementById('clearBtn');
+  const submitBtn = document.getElementById('submitBtn');
+  const uploadForm = document.getElementById('uploadForm');
+  const loading = document.getElementById('loading');
+
+  function showFile(name) {
+    fileName.textContent = name;
+    selectedFile.classList.add('show');
+    submitBtn.disabled = false;
+  }
+
+  if (uploadArea && fileInput) {
+    uploadArea.addEventListener('click', () => fileInput.click());
+
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.style.borderColor = '#6366f1';
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.style.borderColor = '#cbd5e1';
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.style.borderColor = '#cbd5e1';
+      const files = e.dataTransfer.files;
+      if (files.length > 0 && (files[0].type === 'application/pdf' || files[0].name.toLowerCase().endsWith('.pdf'))) {
+        fileInput.files = files;
+        showFile(files[0].name);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) showFile(e.target.files[0].name);
+    });
+
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        fileInput.value = '';
+        selectedFile.classList.remove('show');
+        submitBtn.disabled = true;
+      });
+    }
+
+    if (uploadForm && loading) {
+      uploadForm.addEventListener('submit', () => loading.classList.add('show'));
+    }
+  }
+</script>
+
+</body>
+</html>
