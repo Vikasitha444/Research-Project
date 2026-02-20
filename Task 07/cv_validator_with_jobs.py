@@ -62,53 +62,68 @@ def load_job_data():
     """Load job data from CSV file"""
     try:
         df = pd.read_csv('topjobs_it_jobs.csv')
+        # Drop fully empty rows
+        df = df.dropna(how='all')
         df['title'] = df['title'].fillna('Not specified')
         df['company'] = df['company'].fillna('Company Name Withheld')
         df['location'] = df['location'].fillna('Sri Lanka')
         df['description'] = df['description'].fillna('Please refer the vacancy')
         df['combined_text'] = df['title'].astype(str) + ' ' + df['description'].astype(str)
+        # Remove rows where title is still 'Not specified' and description is empty
+        df = df[df['title'] != 'Not specified'].reset_index(drop=True)
         return df
     except Exception as e:
         print(f"Error loading job data: {e}")
         return None
 
-def get_job_recommendations(cv_keywords, location_filter='All', top_n=5):
-    """Get job recommendations based on CV keywords"""
+def get_job_recommendations(cv_keywords, location_filter='All', min_match_percentage=0):
+    """
+    Get ALL job recommendations based on CV keywords.
+    Returns all jobs sorted by relevance (no top_n limit).
+    Optionally filter by minimum match percentage.
+    """
     try:
         df = load_job_data()
         if df is None or len(df) == 0:
             return []
-        
+
         # Filter by location if specified
         if location_filter != 'All':
             df = df[df['location'].str.contains(location_filter, case=False, na=False)]
-        
+
         if len(df) == 0:
             return []
-        
+
         # Create user skills text from keywords
         user_skills = ' '.join(cv_keywords)
-        
+
         # Prepare text data
         all_text = list(df['combined_text']) + [user_skills]
-        
+
         # Create TF-IDF vectors
         vectorizer = TfidfVectorizer(max_features=500, ngram_range=(1, 2), stop_words='english')
         tfidf_matrix = vectorizer.fit_transform(all_text)
-        
+
         user_vector = tfidf_matrix[-1]
         job_vectors = tfidf_matrix[:-1]
-        
+
         # Calculate similarity
         similarities = cosine_similarity(user_vector, job_vectors).flatten()
-        
+
         # Add similarity scores to dataframe
         df_copy = df.copy()
         df_copy['similarity_score'] = similarities
-        
-        # Get top recommendations
-        recommendations = df_copy.sort_values('similarity_score', ascending=False).head(top_n)
-        
+
+        # ✅ FIX: Return ALL jobs sorted by relevance (no top_n limit)
+        # Sort by similarity score descending, get all rows
+        recommendations = df_copy.sort_values('similarity_score', ascending=False)
+
+        # Optional: filter by minimum match percentage if specified
+        if min_match_percentage > 0:
+            recommendations = recommendations[
+                recommendations['similarity_score'] * 100 >= min_match_percentage
+            ]
+
         # Convert to list of dictionaries
         jobs = []
         for _, row in recommendations.iterrows():
@@ -117,13 +132,13 @@ def get_job_recommendations(cv_keywords, location_filter='All', top_n=5):
                 'title': row['title'],
                 'company': row['company'],
                 'location': row['location'],
-                'description': row['description'][:200] + '...' if len(row['description']) > 200 else row['description'],
+                'description': row['description'][:200] + '...' if len(str(row['description'])) > 200 else row['description'],
                 'url': row.get('url', ''),
                 'closing_date': row.get('closing_date', ''),
                 'match_percentage': round(match_percentage, 1),
                 'match_level': 'Excellent' if match_percentage >= 70 else 'Good' if match_percentage >= 50 else 'Potential'
             })
-        
+
         return jobs
     except Exception as e:
         print(f"Error in job recommendations: {e}")
@@ -171,20 +186,20 @@ def check_gpa_in_cv(pdf_path):
         for page in doc:
             full_text += page.get_text()
         text_lower = full_text.lower()
-        
+
         # Look for GPA patterns
         gpa_patterns = [
             r'gpa[:\s]+([0-9.]+)',
             r'cgpa[:\s]+([0-9.]+)',
             r'grade point[:\s]+([0-9.]+)'
         ]
-        
+
         gpa_found = False
         for pattern in gpa_patterns:
             if re.search(pattern, text_lower):
                 gpa_found = True
                 break
-        
+
         if gpa_found or 'gpa' in text_lower or 'cgpa' in text_lower:
             return {
                 "status": "success",
@@ -213,11 +228,11 @@ def check_professional_email(pdf_path):
         full_text = ""
         for page in doc:
             full_text += page.get_text()
-        
+
         # Extract email addresses
         email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
         emails = re.findall(email_pattern, full_text)
-        
+
         if not emails:
             return {
                 "status": "error",
@@ -225,32 +240,32 @@ def check_professional_email(pdf_path):
                 "value": "Missing",
                 "score": 0
             }
-        
+
         # Check for unprofessional patterns
         unprofessional_keywords = [
-            'cool', 'hot', 'sexy', 'prince', 'king', 'boss', 'gangsta', 
+            'cool', 'hot', 'sexy', 'prince', 'king', 'boss', 'gangsta',
             'swag', 'legend', 'hero', 'cutie', 'angel', 'devil', 'ninja'
         ]
-        
+
         issues = []
         for email in emails:
             email_lower = email.lower()
             local_part = email_lower.split('@')[0]
-            
+
             # Check for unprofessional keywords
             for keyword in unprofessional_keywords:
                 if keyword in local_part:
                     issues.append(f"{email} contains unprofessional word '{keyword}'")
-            
+
             # Check for too many numbers (more than 4 consecutive)
             if re.search(r'\d{4,}', local_part):
                 issues.append(f"{email} has too many consecutive numbers")
-            
+
             # Check for excessive special characters
             special_chars = len(re.findall(r'[._-]', local_part))
             if special_chars > 2:
                 issues.append(f"{email} has too many special characters")
-        
+
         if issues:
             return {
                 "status": "warning",
@@ -279,14 +294,14 @@ def check_photo_presence(pdf_path):
     try:
         doc = pymupdf.open(pdf_path)
         has_image = False
-        
+
         for page_num in range(len(doc)):
             page = doc[page_num]
             image_list = page.get_images(full=True)
             if image_list:
                 has_image = True
                 break
-        
+
         if has_image:
             return {
                 "status": "success",
@@ -315,21 +330,21 @@ def check_ol_al_presence(pdf_path):
         full_text = ""
         for page in doc:
             full_text += page.get_text()
-        
+
         text_lower = full_text.lower()
-        
+
         # Patterns for O/L and A/L
         ol_patterns = ['o/l', 'o.l', 'ordinary level', 'g.c.e o/l', 'gce o/l']
         al_patterns = ['a/l', 'a.l', 'advanced level', 'g.c.e a/l', 'gce a/l']
-        
+
         has_ol = any(pattern in text_lower for pattern in ol_patterns)
         has_al = any(pattern in text_lower for pattern in al_patterns)
-        
+
         if has_ol or has_al:
             details = []
             if has_ol: details.append("O/L")
             if has_al: details.append("A/L")
-            
+
             return {
                 "status": "warning",
                 "message": f"School exam results ({', '.join(details)}) found. Sri Lankan IT companies typically don't require these for graduate positions.",
@@ -354,26 +369,26 @@ def check_formatting_quality(pdf_path):
     doc = None
     try:
         doc = pymupdf.open(pdf_path)
-        
+
         issues = []
         font_sizes = set()
-        
+
         for page_num in range(len(doc)):
             page = doc[page_num]
             blocks = page.get_text("dict")["blocks"]
-            
+
             for block in blocks:
                 if "lines" in block:
                     for line in block["lines"]:
                         for span in line["spans"]:
                             font_sizes.add(round(span["size"], 1))
-        
+
         # Check font size variety (should have 2-4 different sizes for hierarchy)
         if len(font_sizes) < 2:
             issues.append("Use different font sizes for headings and body text")
         elif len(font_sizes) > 6:
             issues.append("Too many different font sizes - keep it consistent")
-        
+
         # Check page margins (basic check)
         page = doc[0]
         blocks = page.get_text("blocks")
@@ -381,10 +396,10 @@ def check_formatting_quality(pdf_path):
             min_x = min(b[0] for b in blocks)
             if min_x < 36:  # Less than 0.5 inch margin
                 issues.append("Margins appear too small")
-        
+
         score = 10 - (len(issues) * 2)
         score = max(0, min(10, score))
-        
+
         if issues:
             return {
                 "status": "warning",
@@ -413,18 +428,16 @@ def validate_technical_keywords(pdf_path):
         full_text = ""
         for page in doc:
             full_text += page.get_text()
-        
+
         found_keywords = []
         for keyword in SRI_LANKAN_TECH_KEYWORDS:
             # Case-insensitive search with word boundaries
             pattern = r'\b' + re.escape(keyword) + r'\b'
             if re.search(pattern, full_text, re.IGNORECASE):
                 found_keywords.append(keyword)
-        
+
         keyword_count = len(found_keywords)
-        total_keywords = len(SRI_LANKAN_TECH_KEYWORDS)
-        percentage = (keyword_count / total_keywords) * 100
-        
+
         if keyword_count >= 10:
             status = "success"
             message = f"Excellent! Found {keyword_count} relevant technical keywords."
@@ -437,7 +450,7 @@ def validate_technical_keywords(pdf_path):
             status = "warning"
             message = f"Only {keyword_count} technical keywords found. Add more relevant technologies."
             score = 4
-        
+
         return {
             "status": status,
             "message": message,
@@ -488,7 +501,7 @@ def validate_github_links(pdf_path):
             if exists:
                 valid_count += 1
             time.sleep(0.3)
-        
+
         if valid_count == len(repos):
             status = "success"
             score = 10
@@ -498,7 +511,7 @@ def validate_github_links(pdf_path):
         else:
             status = "error"
             score = 2
-        
+
         return {
             "status": status,
             "message": f"Found {len(repos)} links, {valid_count} are working.",
@@ -544,18 +557,18 @@ def check_skills_separation(pdf_path):
     """Check if Technical Skills and Soft Skills are separated"""
     try:
         doc = pymupdf.open(pdf_path)
-        
+
         soft_skills = []
         technical_skills = []
         all_blocks = []
-        
+
         for page in doc:
             blocks = page.get_text("blocks")
             for b in blocks:
                 all_blocks.append(b)
-        
+
         all_blocks.sort(key=lambda b: (b[1], b[0]))
-        
+
         sorted_lines = []
         for b in all_blocks:
             lines = b[4].splitlines()
@@ -563,21 +576,21 @@ def check_skills_separation(pdf_path):
                 sorted_lines.append(line.strip())
 
         current_section = None
-        
+
         soft_headers = ["soft skill", "soft skills", "interpersonal", "personal skills"]
         tech_headers = ["technical skill", "technical skills", "tech stack", "technologies", "programming"]
-        
+
         stop_words = [
-            "project", "experience", "education", "qualification", 
-            "reference", "contact", "certification", "certificate", 
-            "achievement", "profile", "summary", "declaration", 
+            "project", "experience", "education", "qualification",
+            "reference", "contact", "certification", "certificate",
+            "achievement", "profile", "summary", "declaration",
             "language", "interest", "volunteer"
         ]
 
         for line in sorted_lines:
             line_clean = line.strip()
             line_lower = line_clean.lower()
-            
+
             if not line_clean:
                 continue
 
@@ -592,14 +605,14 @@ def check_skills_separation(pdf_path):
                 continue
 
             is_stop_header = any(w in line_lower for w in stop_words) and len(line_clean) < 30
-            if is_stop_header and "skill" not in line_lower: 
+            if is_stop_header and "skill" not in line_lower:
                 current_section = None
                 continue
 
             if current_section == "soft":
                 if len(line_clean) > 2 and "skill" not in line_lower:
                     soft_skills.append(line_clean)
-            
+
             elif current_section == "technical":
                 if len(line_clean) > 1 and "skill" not in line_lower:
                     technical_skills.append(line_clean)
@@ -640,7 +653,7 @@ def check_skills_separation(pdf_path):
                 "tech_count": 0
             }
         else:
-             return {
+            return {
                 "status": "error",
                 "message": "Could not identify clear skill sections.",
                 "value": "Not found",
@@ -650,7 +663,7 @@ def check_skills_separation(pdf_path):
             }
 
     except Exception as e:
-        if 'doc' in locals(): 
+        if 'doc' in locals():
             doc.close()
         return {"status": "error", "message": f"Error: {e}", "value": "Error", "score": 0}
 
@@ -662,51 +675,51 @@ def check_contact_information(pdf_path):
         full_text = ""
         for page in doc:
             full_text += page.get_text()
-        
+
         text_lower = full_text.lower()
-        
+
         # Check for phone number
         phone_pattern = r'(\+94|0)?[\s-]?[0-9]{9,10}'
         has_phone = re.search(phone_pattern, full_text)
-        
+
         # Check for email
         email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
         has_email = re.search(email_pattern, full_text)
-        
+
         # Check for LinkedIn
         has_linkedin = 'linkedin' in text_lower
-        
+
         # Check for location/address
         has_location = any(word in text_lower for word in ['colombo', 'sri lanka', 'address', 'location'])
-        
+
         score = 0
         found = []
         missing = []
-        
+
         if has_phone:
             score += 3
             found.append("Phone")
         else:
             missing.append("Phone")
-            
+
         if has_email:
             score += 3
             found.append("Email")
         else:
             missing.append("Email")
-            
+
         if has_linkedin:
             score += 2
             found.append("LinkedIn")
         else:
             missing.append("LinkedIn")
-            
+
         if has_location:
             score += 2
             found.append("Location")
         else:
             missing.append("Location")
-        
+
         if score >= 8:
             return {
                 "status": "success",
@@ -731,7 +744,7 @@ def check_contact_information(pdf_path):
                 "score": max(4, score),
                 "details": found
             }
-            
+
     except Exception as e:
         return {"status": "error", "message": f"Error: {e}", "value": "Error", "score": 0}
     finally:
@@ -745,23 +758,23 @@ def check_action_verbs(pdf_path):
         'optimized', 'improved', 'analyzed', 'achieved', 'delivered', 'collaborated',
         'architected', 'engineered', 'deployed', 'integrated', 'automated', 'streamlined'
     ]
-    
+
     doc = None
     try:
         doc = pymupdf.open(pdf_path)
         full_text = ""
         for page in doc:
             full_text += page.get_text()
-        
+
         text_lower = full_text.lower()
-        
+
         found_verbs = []
         for verb in strong_verbs:
             if verb in text_lower:
                 found_verbs.append(verb)
-        
+
         verb_count = len(found_verbs)
-        
+
         if verb_count >= 8:
             return {
                 "status": "success",
@@ -794,7 +807,7 @@ def check_action_verbs(pdf_path):
                 "score": 3,
                 "verbs": found_verbs
             }
-            
+
     except Exception as e:
         return {"status": "error", "message": f"Error: {e}", "value": "Error", "score": 0}
     finally:
@@ -809,7 +822,7 @@ def check_quantifiable_achievements(pdf_path):
         full_text = ""
         for page in doc:
             full_text += page.get_text()
-        
+
         # Look for numbers with context (percentages, counts, metrics)
         number_patterns = [
             r'\d+%',  # percentages
@@ -818,14 +831,14 @@ def check_quantifiable_achievements(pdf_path):
             r'(increased|decreased|improved|reduced|grew)\s+.*?\d+',  # improvement metrics
             r'\d+\s*(years?|months?)',  # time periods
         ]
-        
+
         metrics_found = []
         for pattern in number_patterns:
             matches = re.findall(pattern, full_text, re.IGNORECASE)
             metrics_found.extend(matches)
-        
+
         metric_count = len(metrics_found)
-        
+
         if metric_count >= 5:
             return {
                 "status": "success",
@@ -854,7 +867,7 @@ def check_quantifiable_achievements(pdf_path):
                 "value": "None found",
                 "score": 2
             }
-            
+
     except Exception as e:
         return {"status": "error", "message": f"Error: {e}", "value": "Error", "score": 0}
     finally:
@@ -866,24 +879,24 @@ def check_professional_summary(pdf_path):
     doc = None
     try:
         doc = pymupdf.open(pdf_path)
-        
+
         # Check first page only (summaries are typically at the top)
         first_page = doc[0]
         text = first_page.get_text().lower()
-        
+
         summary_keywords = [
             'summary', 'profile', 'objective', 'career objective',
             'professional summary', 'about me', 'introduction'
         ]
-        
+
         has_summary = any(keyword in text for keyword in summary_keywords)
-        
+
         # Check if it's in the first 30% of the page (top section)
         blocks = first_page.get_text("blocks")
         if blocks:
             page_height = first_page.rect.height
             top_section = page_height * 0.3
-            
+
             has_top_summary = False
             for block in blocks:
                 if block[1] < top_section:  # y-coordinate in top 30%
@@ -891,7 +904,7 @@ def check_professional_summary(pdf_path):
                     if any(keyword in block_text for keyword in summary_keywords):
                         has_top_summary = True
                         break
-            
+
             if has_top_summary:
                 return {
                     "status": "success",
@@ -913,14 +926,14 @@ def check_professional_summary(pdf_path):
                     "value": "Not found",
                     "score": 6
                 }
-        
+
         return {
             "status": "warning",
             "message": "Could not detect professional summary.",
             "value": "Not detected",
             "score": 5
         }
-        
+
     except Exception as e:
         return {"status": "error", "message": f"Error: {e}", "value": "Error", "score": 0}
     finally:
@@ -932,52 +945,52 @@ def check_ats_compatibility(pdf_path):
     doc = None
     try:
         doc = pymupdf.open(pdf_path)
-        
+
         issues = []
         score = 10
-        
+
         # Check 1: Text extractability
         total_text = ""
         for page in doc:
             total_text += page.get_text()
-        
+
         if len(total_text.strip()) < 200:
             issues.append("Text may be in images (not ATS-readable)")
             score -= 4
-        
+
         # Check 2: Complex formatting (tables, columns)
         first_page = doc[0]
         blocks = first_page.get_text("blocks")
-        
+
         # Simple heuristic: if blocks are scattered horizontally, might be multi-column
         if len(blocks) > 5:
             x_positions = [b[0] for b in blocks]
             if len(set([round(x, -1) for x in x_positions])) > 2:
                 issues.append("May have complex multi-column layout")
                 score -= 2
-        
+
         # Check 3: Headers and footers (can confuse ATS)
         page_height = first_page.rect.height
         header_zone = page_height * 0.08
         footer_zone = page_height * 0.92
-        
+
         for block in blocks:
             if block[1] < header_zone or block[1] > footer_zone:
                 if len(block[4].strip()) > 10:
                     issues.append("Content in header/footer area")
                     score -= 1
                     break
-        
+
         # Check 4: Standard section headers
         standard_headers = ['education', 'experience', 'skills', 'projects']
         found_headers = sum(1 for h in standard_headers if h in total_text.lower())
-        
+
         if found_headers < 3:
             issues.append("Missing standard section headers")
             score -= 2
-        
+
         score = max(0, score)
-        
+
         if score >= 9:
             return {
                 "status": "success",
@@ -1001,7 +1014,7 @@ def check_ats_compatibility(pdf_path):
                 "score": score,
                 "issues": issues
             }
-            
+
     except Exception as e:
         return {"status": "error", "message": f"Error: {e}", "value": "Error", "score": 0}
     finally:
@@ -1016,10 +1029,10 @@ def check_consistency(pdf_path):
         full_text = ""
         for page in doc:
             full_text += page.get_text()
-        
+
         issues = []
         score = 10
-        
+
         # Check date formats
         date_formats = [
             r'\d{4}\s*-\s*\d{4}',  # 2020 - 2023
@@ -1027,26 +1040,26 @@ def check_consistency(pdf_path):
             r'[A-Z][a-z]+\s+\d{4}',  # January 2020
             r'\d{4}',  # Just year
         ]
-        
+
         found_formats = []
         for fmt in date_formats:
             if re.search(fmt, full_text):
                 found_formats.append(fmt)
-        
+
         if len(found_formats) > 2:
             issues.append("Inconsistent date formats")
             score -= 2
-        
+
         # Check bullet point consistency (looking for mixed bullet styles)
         bullet_styles = ['•', '●', '○', '■', '□', '-', '*']
         found_bullets = [b for b in bullet_styles if b in full_text]
-        
+
         if len(found_bullets) > 2:
             issues.append("Multiple bullet point styles")
             score -= 2
-        
+
         score = max(0, score)
-        
+
         if score >= 9:
             return {
                 "status": "success",
@@ -1069,7 +1082,7 @@ def check_consistency(pdf_path):
                 "score": score,
                 "issues": issues
             }
-            
+
     except Exception as e:
         return {"status": "error", "message": f"Error: {e}", "value": "Error", "score": 0}
     finally:
@@ -1080,7 +1093,7 @@ def validate_with_llm(pdf_path, validation_results):
     """Enhanced LLM validation matching HR survey criteria with context from other validations"""
     try:
         markdown_text = pymupdf4llm.to_markdown(pdf_path)
-        
+
         # Build context from other validations
         context = f"""
 VALIDATION CONTEXT (from automated checks):
@@ -1093,7 +1106,7 @@ VALIDATION CONTEXT (from automated checks):
 - GitHub links: {validation_results['github']['value']}
 - Technical keywords found: {validation_results['keywords']['value']}
 """
-        
+
         # Enhanced prompt matching the methodology document
         query = f'''You are an HR manager at a leading Sri Lankan IT company (like Dialog Axiata, IFS, Virtusa, WSO2, or CodeGen International). 
 
@@ -1124,8 +1137,8 @@ Answer ONLY with YES or NO for each numbered item. One answer per line.'''
             return {
                 "status": "error",
                 "message": "API key missing. Please set GROQ_API_KEY in config.py.",
-                "results": [], 
-                "passed": 0, 
+                "results": [],
+                "passed": 0,
                 "total": 10,
                 "score": 0
             }
@@ -1186,8 +1199,8 @@ Answer ONLY with YES or NO for each numbered item. One answer per line.'''
         return {
             "status": "error",
             "message": f"AI Analysis error: {str(e)}",
-            "results": [], 
-            "passed": 0, 
+            "results": [],
+            "passed": 0,
             "total": 10,
             "score": 0
         }
@@ -1211,10 +1224,10 @@ def calculate_overall_score(results):
         'summary': 0.05,
         'llm': 0.10
     }
-    
+
     total_score = 0
     total_weight = 0
-    
+
     score_map = {
         'page_count': results['page_count'].get('score', 0),
         'gpa': results['gpa'].get('score', 0),
@@ -1232,14 +1245,14 @@ def calculate_overall_score(results):
         'summary': results['summary'].get('score', 0),
         'llm': results['llm'].get('score', 0)
     }
-    
+
     for key, weight in weights.items():
         if key in score_map:
             total_score += score_map[key] * weight
             total_weight += weight
-    
+
     final_score = (total_score / total_weight) if total_weight > 0 else 0
-    
+
     # Determine grade
     if final_score >= 8.5:
         grade = "Excellent"
@@ -1253,7 +1266,7 @@ def calculate_overall_score(results):
     else:
         grade = "Needs Improvement"
         status = "warning"
-    
+
     return {
         "status": status,
         "score": round(final_score, 1),
@@ -1296,18 +1309,18 @@ def index():
                     'achievements': check_quantifiable_achievements(filepath),
                     'summary': check_professional_summary(filepath)
                 }
-                
+
                 # Run LLM validation with context from other validations
                 results['llm'] = validate_with_llm(filepath, results)
-                
+
                 # Calculate overall score
                 results['overall'] = calculate_overall_score(results)
-                
-                # Get job recommendations based on CV keywords
+
+                # ✅ FIX: Get ALL job recommendations (no top_n limit)
                 cv_keywords = results['keywords'].get('found_keywords', [])
-                job_recommendations = get_job_recommendations(cv_keywords, top_n=5)
+                job_recommendations = get_job_recommendations(cv_keywords)
                 results['job_recommendations'] = job_recommendations
-                
+
             finally:
                 gc.collect()
                 time.sleep(0.5)
@@ -1323,20 +1336,21 @@ def index():
 
     return render_template("index.html", results=None)
 
+
 @app.route('/api/validate', methods=['POST'])
 def api_validate():
     """API endpoint for programmatic CV validation"""
     if 'cv_file' not in request.files:
         return jsonify({"error": "No file provided"}), 400
-    
+
     file = request.files['cv_file']
     if not file.filename.endswith('.pdf'):
         return jsonify({"error": "Only PDF files accepted"}), 400
-    
+
     filename = secure_filename(file.filename)
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     file.save(filepath)
-    
+
     try:
         results = {
             'page_count': check_cv_page_count(filepath),
@@ -1356,15 +1370,16 @@ def api_validate():
         }
         results['llm'] = validate_with_llm(filepath, results)
         results['overall'] = calculate_overall_score(results)
-        
-        # Get job recommendations
+
+        # ✅ FIX: Get ALL job recommendations (no top_n limit)
         cv_keywords = results['keywords'].get('found_keywords', [])
-        results['job_recommendations'] = get_job_recommendations(cv_keywords, top_n=5)
-        
+        results['job_recommendations'] = get_job_recommendations(cv_keywords)
+
         return jsonify(results)
     finally:
         if os.path.exists(filepath):
             os.remove(filepath)
+
 
 if __name__ == '__main__':
     print("\n" + "=" * 50)
