@@ -457,13 +457,157 @@
         {% endif %}
 
         <div class="tabs">
-            <button class="tab active" onclick="showTab('validation')">📋 CV Validation</button>
-            <button class="tab" onclick="showTab('jobs')">💼 Job Recommendations ({{ results.job_recommendations|length }})</button>
-            <button class="tab" onclick="showTab('keywords')">🔑 Your Skills</button>
+            <button class="tab active" onclick="showTab('validation', this)">📋 CV Validation</button>
+            <button class="tab" onclick="showTab('jobs', this)">💼 Job Recommendations ({{ results.job_recommendations|length }})</button>
+            <button class="tab" onclick="showTab('keywords', this)">🔑 Your Skills</button>
         </div>
 
         <!-- Validation Tab -->
-       
+        <div id="validation" class="tab-content active">
+            <div class="validation-grid">
+                <div class="validation-item {{ results.page_count.status }}">
+                    <h3>📄 Page Count</h3>
+                    <div class="value">{{ results.page_count.value }}</div>
+                    <div class="message">{{ results.page_count.message }}</div>
+                    <span class="score-badge">{{ results.page_count.score }}/10</span>
+                </div>
+                <div class="validation-item {{ results.gpa.status }}">
+                    <h3>🎓 GPA / CGPA</h3>
+                    <div class="value">{{ results.gpa.value }}</div>
+                    <div class="message">{{ results.gpa.message }}</div>
+                    <span class="score-badge">{{ results.gpa.score }}/10</span>
+                </div>
+                <div class="validation-item {{ results.specialization.status }}">
+                    <h3>🔬 Specialization</h3>
+                    <div class="value">{{ results.specialization.value }}</div>
+                    <div class="message">{{ results.specialization.message }}</div>
+                    <span class="score-badge">{{ results.specialization.score }}/10</span>
+                </div>
+                <div class="validation-item {{ results.professional_email.status }}">
+                    <h3>📧 Email</h3>
+                    <div class="value">{{ results.professional_email.value }}</div>
+                    <div class="message">{{ results.professional_email.message }}</div>
+                    <span class="score-badge">{{ results.professional_email.score }}/10</span>
+                </div>
+                <div class="validation-item {{ results.photo.status }}">
+                    <h3>📷 Photo</h3>
+                    <div class="value">{{ results.photo.value }}</div>
+                    <div class="message">{{ results.photo.message }}</div>
+                    <span class="score-badge">{{ results.photo.score }}/10</span>
+                </div>
+                <div class="validation-item {{ results.ol_al.status }}">
+                    <h3>📚 O/L & A/L</h3>
+                    <div class="value">{{ results.ol_al.value }}</div>
+                    <div class="message">{{ results.ol_al.message }}</div>
+                    <span class="score-badge">{{ results.ol_al.score }}/10</span>
+                </div>
+                <div class="validation-item {{ results.formatting.status }}">
+                    <h3>🎨 Formatting</h3>
+                    <div class="value">{{ results.formatting.value }}</div>
+                    <div class="message">{{ results.formatting.message }}</div>
+                    <span class="score-badge">{{ results.formatting.score }}/10</span>
+                </div>
+                <div class="validation-item {{ results.skills.status }}">
+                    <h3>🛠️ Skills</h3>
+                    <div class="value">{{ results.skills.value }}</div>
+                    <div class="message">{{ results.skills.message }}</div>
+                    <span class="score-badge">{{ results.skills.score }}/10</span>
+                </div>
+                <div class="validation-item {{ results.keywords.status }}">
+                    <h3>🔑 Keywords</h3>
+                    <div class="value">{{ results.keywords.value }}</div>
+                    <div class="message">{{ results.keywords.message }}</div>
+                    <span class="score-badge">{{ results.keywords.score }}/10</span>
+                </div>
+                {% if results.keywords.found_keywords %}
+                <div class="validation-item info" style="grid-column: 1 / -1;">
+                    <h3>🏷️ Found Keywords</h3>
+                    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;">
+                        {% for keyword in results.keywords.found_keywords %}
+                        <span style="background:#667eea;color:white;padding:5px 12px;border-radius:15px;font-size:13px;font-weight:600;">{{ keyword }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                <div class="validation-item {{ results.github.status }}">
+                    <h3>🐙 GitHub</h3>
+                    <div class="value">{{ results.github.value }}</div>
+                    <div class="message">{{ results.github.message }}</div>
+                    <span class="score-badge">{{ results.github.score }}/10</span>
+                </div>
+                {% if results.github.repos %}
+                <div class="validation-item info" style="grid-column: 1 / -1;">
+                    <h3>🔗 GitHub Repositories</h3>
+                    {% for repo in results.github.repos %}
+                    <div style="display:flex;align-items:center;gap:10px;padding:8px;background:#f8f9ff;border-radius:8px;margin-top:8px;">
+                        <span style="width:10px;height:10px;border-radius:50%;background:{{ '#4caf50' if repo.valid else '#f44336' }};flex-shrink:0;display:inline-block;"></span>
+                        <a href="{{ repo.url }}" target="_blank" style="color:#667eea;word-break:break-all;">{{ repo.url }}</a>
+                        <span style="font-size:12px;color:#666;">{{ repo.message }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                <div class="validation-item {{ results.summary.status }}">
+                    <h3>📝 Summary</h3>
+                    <div class="value">{{ results.summary.value }}</div>
+                    <div class="message">{{ results.summary.message }}</div>
+                    <span class="score-badge">{{ results.summary.score }}/10</span>
+                </div>
+                <div class="validation-item {{ results.action_verbs.status }}">
+                    <h3>💪 Action Verbs</h3>
+                    <div class="value">{{ results.action_verbs.value }}</div>
+                    <div class="message">{{ results.action_verbs.message }}</div>
+                    <span class="score-badge">{{ results.action_verbs.score }}/10</span>
+                </div>
+                {% if results.action_verbs.verbs %}
+                <div class="validation-item info">
+                    <h3>✅ Verbs Found</h3>
+                    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">
+                        {% for verb in results.action_verbs.verbs %}
+                        <span style="background:#4caf50;color:white;padding:4px 10px;border-radius:12px;font-size:13px;">{{ verb }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                <div class="validation-item {{ results.achievements.status }}">
+                    <h3>🏆 Achievements</h3>
+                    <div class="value">{{ results.achievements.value }}</div>
+                    <div class="message">{{ results.achievements.message }}</div>
+                    <span class="score-badge">{{ results.achievements.score }}/10</span>
+                </div>
+                <div class="validation-item {{ results.contact.status }}">
+                    <h3>📞 Contact Info</h3>
+                    <div class="value">{{ results.contact.value }}</div>
+                    <div class="message">{{ results.contact.message }}</div>
+                    <span class="score-badge">{{ results.contact.score }}/10</span>
+                </div>
+            </div>
+
+            {% if results.llm.status == 'success' %}
+            <div style="margin-top:30px;">
+                <h2 style="color:#333;margin-bottom:20px;">🤖 AI Analysis - HR Manager Perspective</h2>
+                <div style="background:#f0fff4;border-radius:15px;padding:25px;border:2px solid #c3e6cb;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+                        <span style="font-size:18px;font-weight:700;color:#2e7d32;">HR Manager Review</span>
+                        <span style="background:#4caf50;color:white;padding:8px 20px;border-radius:20px;font-weight:700;">{{ results.llm.passed }}/{{ results.llm.total }} Passed</span>
+                    </div>
+                    <div class="validation-grid">
+                        {% for item in results.llm.results %}
+                        <div class="validation-item {{ 'success' if item.passed else 'warning' }}">
+                            <h3>{{ '✅' if item.passed else '⚠️' }} {{ item.name }}</h3>
+                            <div class="message">{{ item.description }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% elif results.llm.status == 'error' %}
+            <div class="validation-item error" style="margin-top:20px;">
+                <h3>🤖 AI Analysis</h3>
+                <div class="message">{{ results.llm.message }}</div>
+            </div>
+            {% endif %}
+        </div>
 
         <!-- Jobs Tab -->
         <div id="jobs" class="tab-content">
@@ -551,7 +695,7 @@
     </div>
 
     <script>
-        function showTab(tabName) {
+        function showTab(tabName, clickedBtn) {
             // Hide all tabs
             const tabContents = document.querySelectorAll('.tab-content');
             tabContents.forEach(content => {
@@ -568,7 +712,7 @@
             document.getElementById(tabName).classList.add('active');
 
             // Add active class to clicked button
-            event.target.classList.add('active');
+            clickedBtn.classList.add('active');
         }
     </script>
 </body>
