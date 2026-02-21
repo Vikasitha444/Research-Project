@@ -1,127 +1,258 @@
-<!-- templates/job_recommendation.html ✅ FULL UPDATED
-     - Fixes: 'results' is undefined by always using "results" passed from route
-     - This page reads results.job_recommendations (stored in session by your Flask route)
--->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Job Recommendations</title>
+  <title>Job Recommendations – CV Validator Pro</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
   <style>
-    .jr-wrap{max-width:1100px;margin:0 auto;padding:24px}
-    .jr-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-    .jr-title{font-size:28px;font-weight:800;margin:0}
-    .jr-sub{opacity:.8;margin:6px 0 0 0}
-    .jr-grid{display:grid;grid-template-columns:1fr;gap:14px}
-    .jr-card{border:1px solid #e5e7eb;border-radius:14px;padding:16px;background:#fff}
-    .jr-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
-    .jr-role{font-size:18px;font-weight:800;margin:0 0 6px 0}
-    .jr-meta{opacity:.85}
-    .jr-desc{margin:10px 0 12px 0;line-height:1.5}
-    .jr-tags{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 12px 0}
-    .jr-pill{padding:6px 10px;border-radius:999px;background:#f1f5f9;font-size:12px}
-    .jr-pill.green{background:#dcfce7}
-    .jr-actions{display:flex;gap:10px;flex-wrap:wrap}
-    .jr-badge{padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700}
-    .jr-badge.good{background:#dcfce7}
-    .jr-badge.mid{background:#fef9c3}
-    .jr-badge.low{background:#fee2e2}
+    /* ── page wrapper ── */
+    .jr-wrap { max-width: 1100px; margin: 0 auto; padding: 28px 20px; }
+
+    /* ── header ── */
+    .jr-head {
+      display: flex; align-items: flex-start;
+      justify-content: space-between; flex-wrap: wrap;
+      gap: 16px; margin-bottom: 24px;
+    }
+    .jr-title  { font-size: 28px; font-weight: 800; margin: 0 0 6px 0; }
+    .jr-sub    { opacity: .75; margin: 0; font-size: 14px; }
+
+    /* ── filter bar ── */
+    .jr-filters {
+      display: flex; flex-wrap: wrap; gap: 12px;
+      margin-bottom: 22px; align-items: center;
+    }
+    .jr-filters label { font-size: 13px; font-weight: 600; color: #64748b; }
+    .jr-filters select {
+      padding: 8px 14px; border: 1px solid #e2e8f0; border-radius: 8px;
+      font-size: 14px; background: #fff; cursor: pointer;
+      font-family: inherit; color: #1e293b;
+    }
+    .jr-filters select:focus { outline: 2px solid #6366f1; }
+
+    /* ── stats bar ── */
+    .jr-stats {
+      font-size: 13px; color: #64748b;
+      margin-bottom: 18px; font-weight: 500;
+    }
+    .jr-stats strong { color: #1e293b; }
+
+    /* ── cards grid ── */
+    .jr-grid  { display: flex; flex-direction: column; gap: 16px; }
+
+    .jr-card {
+      border: 1px solid #e5e7eb; border-radius: 14px;
+      padding: 20px; background: #fff;
+      transition: box-shadow .2s, border-color .2s;
+    }
+    .jr-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,.08); border-color: #c7d2fe; }
+
+    /* card top row */
+    .jr-top {
+      display: flex; align-items: flex-start;
+      justify-content: space-between; gap: 14px; flex-wrap: wrap;
+    }
+    .jr-role { font-size: 18px; font-weight: 800; margin: 0 0 6px 0; color: #1e293b; }
+    .jr-meta { font-size: 13px; color: #64748b; line-height: 1.7; }
+
+    /* match badge */
+    .jr-badge {
+      padding: 6px 12px; border-radius: 999px;
+      font-size: 12px; font-weight: 800; white-space: nowrap; flex-shrink: 0;
+    }
+    .jr-badge.excellent { background: #dcfce7; color: #15803d; }
+    .jr-badge.good      { background: #fef9c3; color: #92400e; }
+    .jr-badge.potential { background: #f1f5f9; color: #475569; }
+
+    .jr-level-hint { font-size: 11px; color: #94a3b8; margin-top: 5px; text-align: right; }
+
+    /* description */
+    .jr-desc { margin: 12px 0; font-size: 14px; color: #475569; line-height: 1.6; }
+
+    /* skill tags */
+    .jr-tags  { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 14px; }
+    .jr-pill  {
+      padding: 5px 10px; border-radius: 999px;
+      background: #f1f5f9; font-size: 12px; color: #475569; font-weight: 500;
+    }
+    .jr-pill.matched  { background: #dcfce7; color: #15803d; }
+    .jr-pill.missing  { background: #fee2e2; color: #991b1b; }
+
+    /* closing date */
+    .jr-closing { font-size: 12px; color: #94a3b8; margin-bottom: 12px; }
+    .jr-closing span { font-weight: 600; color: #64748b; }
+
+    /* actions */
+    .jr-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .jr-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 18px; border-radius: 8px; font-size: 14px;
+      font-weight: 700; text-decoration: none; cursor: pointer;
+      transition: all .2s; border: 2px solid transparent;
+      font-family: inherit;
+    }
+    .jr-btn-primary { background: #6366f1; color: #fff; }
+    .jr-btn-primary:hover { background: #4f46e5; transform: translateY(-1px); }
+    .jr-btn-secondary { background: transparent; color: #6366f1; border-color: #6366f1; }
+    .jr-btn-secondary:hover { background: #eef2ff; }
+
+    /* empty state */
+    .jr-empty {
+      text-align: center; padding: 60px 20px;
+      border: 2px dashed #e2e8f0; border-radius: 14px; background: #fafafa;
+    }
+    .jr-empty-icon { font-size: 52px; margin-bottom: 16px; }
+    .jr-empty h3   { font-size: 20px; font-weight: 800; color: #1e293b; margin: 0 0 8px; }
+    .jr-empty p    { color: #64748b; margin: 0 0 20px; }
+
+    /* section label */
+    .jr-section-label {
+      font-size: 12px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .5px; color: #94a3b8; margin: 4px 0 8px;
+    }
+
+    @media (max-width: 600px) {
+      .jr-top { flex-direction: column; }
+      .jr-badge { align-self: flex-start; }
+    }
   </style>
 </head>
 <body>
 
+<!-- Navbar -->
 <nav class="navbar">
   <div class="nav-container">
-    <a href="/" class="logo-link"><div class="logo">📄 CV Validator Pro</div></a>
+    <a href="/" class="logo-link">
+      <div class="logo">📄 CV Validator Pro</div>
+    </a>
     <div class="nav-buttons">
-      <a href="/" class="btn-getstarted">← Back</a>
+      <a href="/" class="btn-getstarted">← Back to Validator</a>
     </div>
   </div>
 </nav>
 
 <div class="jr-wrap">
+
+  <!-- Header -->
   <div class="jr-head">
     <div>
       <h1 class="jr-title">💼 Job Recommendations</h1>
       <p class="jr-sub">
-        {% if filename %}Based on: <b>{{ filename }}</b>{% else %}Analyze a CV first to get recommendations.{% endif %}
+        {% if filename %}
+          Based on: <strong>{{ filename }}</strong>
+        {% else %}
+          Upload and validate your CV first to see personalized job matches.
+        {% endif %}
       </p>
     </div>
-    <div>
-      <a class="rw-btn" href="/">Validate Another CV</a>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+      <a href="/" class="jr-btn jr-btn-secondary">🔄 Validate Another CV</a>
     </div>
   </div>
 
-  {% set jobs = results.get('job_recommendations', []) if results else [] %}
-
-  {% if not jobs or jobs|length == 0 %}
-    <div class="jr-card">
-      <h3 style="margin:0 0 6px 0;">No recommendations yet</h3>
-      <p style="margin:0;opacity:.85;">
-        Please upload and analyze your CV on the home page first.
-        Then click <b>“GO TO JOB RECOMMENDATIONS”</b>.
-      </p>
+  {% if not jobs %}
+    <!-- No results yet -->
+    <div class="jr-empty">
+      <div class="jr-empty-icon">📭</div>
+      <h3>No recommendations yet</h3>
+      <p>Please upload and analyze your CV on the home page first,<br>
+         then click <strong>"GO TO JOB RECOMMENDATIONS"</strong>.</p>
+      <a href="/" class="jr-btn jr-btn-primary">🚀 Go to Validator</a>
     </div>
+
   {% else %}
+
+    <!-- Filters -->
+    <form method="GET" action="/job-recommendations" class="jr-filters">
+      <label for="loc">📍 Location:</label>
+      <select id="loc" name="location" onchange="this.form.submit()">
+        <option value="All" {% if loc_filter=='All' %}selected{% endif %}>All Locations</option>
+        {% for loc in all_locations %}
+          <option value="{{ loc }}" {% if loc_filter==loc %}selected{% endif %}>{{ loc }}</option>
+        {% endfor %}
+      </select>
+
+      <label for="lvl">🎯 Match Level:</label>
+      <select id="lvl" name="level" onchange="this.form.submit()">
+        <option value="All" {% if level_filter=='All' %}selected{% endif %}>All Levels</option>
+        {% for lvl in all_levels %}
+          <option value="{{ lvl }}" {% if level_filter==lvl %}selected{% endif %}>{{ lvl }}</option>
+        {% endfor %}
+      </select>
+    </form>
+
+    <!-- Stats -->
+    <p class="jr-stats">
+      Showing <strong>{{ jobs|length }}</strong> job{{ 's' if jobs|length != 1 else '' }}
+      {% if loc_filter != 'All' %} in <strong>{{ loc_filter }}</strong>{% endif %}
+      {% if level_filter != 'All' %} · <strong>{{ level_filter }}</strong> match{% endif %}
+      — sorted by relevance
+    </p>
+
+    <!-- Job Cards -->
     <div class="jr-grid">
       {% for job in jobs %}
       <div class="jr-card">
-        <div class="jr-top">
-          <div>
-            <h3 class="jr-role">{{ job.title }}</h3>
-            <div class="jr-meta">🏢 {{ job.company }} &nbsp;|&nbsp; 📍 {{ job.location }}</div>
-            <div class="jr-meta" style="margin-top:4px;">⏳ Closing: {{ job.closing_date }}</div>
-          </div>
 
-          {% set mp = job.match_percentage|float %}
-          <div>
-            <div class="jr-badge
-              {% if mp >= 70 %}good{% elif mp >= 50 %}mid{% else %}low{% endif %}">
-              {{ job.match_level }} • {{ job.match_percentage }}%
+        <div class="jr-top">
+          <div style="flex:1">
+            <h3 class="jr-role">{{ job.title }}</h3>
+            <div class="jr-meta">
+              🏢 <strong>{{ job.company }}</strong>
+              {% if job.location %}&nbsp;·&nbsp; 📍 {{ job.location }}{% endif %}
             </div>
-            <div style="opacity:.7;font-size:12px;margin-top:6px;">
-              Level used: {{ job.cv_level_used }}
+          </div>
+          <div style="text-align:right">
+            <div class="jr-badge {{ job.match_level | lower }}">
+              {{ job.match_level }} &nbsp;·&nbsp; {{ job.match_percentage }}%
             </div>
+            <div class="jr-level-hint">Keyword match score</div>
           </div>
         </div>
+
+        {% if job.closing_date %}
+        <div class="jr-closing">⏳ Closing: <span>{{ job.closing_date }}</span></div>
+        {% endif %}
 
         <p class="jr-desc">{{ job.description }}</p>
 
         {% if job.matched_skills %}
-        <div style="font-weight:700;margin-top:6px;">Matched skills</div>
+        <div class="jr-section-label">✅ Matched skills from your CV</div>
         <div class="jr-tags">
           {% for s in job.matched_skills %}
-            <span class="jr-pill green">{{ s }}</span>
+            <span class="jr-pill matched">{{ s }}</span>
           {% endfor %}
         </div>
         {% endif %}
 
         {% if job.missing_skills %}
-        <div style="font-weight:700;margin-top:6px;">Missing skills (to improve match)</div>
+        <div class="jr-section-label">📌 Skills to improve your match</div>
         <div class="jr-tags">
           {% for s in job.missing_skills %}
-            <span class="jr-pill">{{ s }}</span>
+            <span class="jr-pill missing">{{ s }}</span>
           {% endfor %}
         </div>
         {% endif %}
 
         <div class="jr-actions">
           {% if job.url %}
-            <a href="{{ job.url }}" target="_blank" class="rw-btn">Apply</a>
+            <a href="{{ job.url }}" target="_blank" rel="noopener" class="jr-btn jr-btn-primary">
+              Apply Now →
+            </a>
           {% else %}
-            <span style="opacity:.7;">No direct link available</span>
+            <span style="opacity:.5;font-size:13px;align-self:center;">No direct link available</span>
           {% endif %}
-          <a href="/" class="rw-btn">Back to Results</a>
         </div>
+
       </div>
       {% endfor %}
     </div>
+
   {% endif %}
 
-</div>
+</div><!-- /jr-wrap -->
 
 </body>
 </html>

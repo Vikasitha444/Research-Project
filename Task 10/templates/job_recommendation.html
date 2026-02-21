@@ -1,0 +1,284 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Recommendations</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+  <style>
+  /* Container */
+  .jr-wrap{
+    max-width:1100px;
+    margin:0 auto;
+    padding:30px 20px;
+  }
+
+  /* Header */
+  .jr-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-bottom:25px;
+  }
+
+  .jr-title{
+    font-size:30px;
+    font-weight:800;
+    margin:0;
+    color:#0f172a;
+  }
+
+  .jr-sub{
+    opacity:.75;
+    margin-top:5px;
+    font-size:14px;
+  }
+
+  /* Grid */
+  .jr-grid{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:18px;
+  }
+
+  /* Card */
+  .jr-card{
+    border:1px solid #e2e8f0;
+    border-radius:16px;
+    padding:20px;
+    background:#ffffff;
+    box-shadow:0 4px 14px rgba(0,0,0,0.05);
+    transition:all .25s ease;
+  }
+
+  .jr-card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+    border-color:#cbd5e1;
+  }
+
+  /* Top section */
+  .jr-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:15px;
+    flex-wrap:wrap;
+  }
+
+  .jr-role{
+    font-size:20px;
+    font-weight:700;
+    margin-bottom:6px;
+    color:#020617;
+  }
+
+  .jr-meta{
+    font-size:14px;
+    color:#475569;
+  }
+
+  /* Description */
+  .jr-desc{
+    margin-top:12px;
+    margin-bottom:12px;
+    color:#334155;
+    font-size:15px;
+    line-height:1.6;
+  }
+
+  /* Tags */
+  .jr-tags{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:8px;
+    margin-bottom:12px;
+  }
+
+  .jr-pill{
+    padding:6px 12px;
+    border-radius:999px;
+    background:#f1f5f9;
+    font-size:12px;
+    font-weight:500;
+    color:#334155;
+  }
+
+  .jr-pill.green{
+    background:#dcfce7;
+    color:#166534;
+  }
+
+  /* Match badge */
+  .jr-badge{
+    padding:7px 14px;
+    border-radius:999px;
+    font-size:13px;
+    font-weight:700;
+    white-space:nowrap;
+  }
+
+  .jr-badge.good{
+    background:#dcfce7;
+    color:#166534;
+  }
+
+  .jr-badge.mid{
+    background:#fef9c3;
+    color:#854d0e;
+  }
+
+  .jr-badge.low{
+    background:#fee2e2;
+    color:#991b1b;
+  }
+
+  /* Actions */
+  .jr-actions{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-top:12px;
+  }
+
+  /* Apply button */
+  .rw-btn{
+    padding:10px 18px;
+    border-radius:8px;
+    background:#2563eb;
+    color:white;
+    text-decoration:none;
+    font-weight:600;
+    font-size:14px;
+    transition:all .2s ease;
+    border:none;
+  }
+
+  .rw-btn:hover{
+    background:#1d4ed8;
+    transform:translateY(-1px);
+  }
+
+  /* Secondary button */
+  .rw-btn.secondary{
+    background:#e2e8f0;
+    color:#0f172a;
+  }
+
+  .rw-btn.secondary:hover{
+    background:#cbd5e1;
+  }
+
+  /* Responsive */
+  @media (max-width:768px){
+
+    .jr-head{
+      flex-direction:column;
+      align-items:flex-start;
+    }
+
+    .jr-top{
+      flex-direction:column;
+      align-items:flex-start;
+    }
+
+  }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="/" class="logo-link"><div class="logo">📄 CV Validator Pro</div></a>
+    <div class="nav-buttons">
+      <a href="/" class="btn-getstarted">← Back</a>
+    </div>
+  </div>
+</nav>
+
+<div class="jr-wrap">
+  <div class="jr-head">
+    <div>
+      <h1 class="jr-title">💼 Job Recommendations</h1>
+      <p class="jr-sub">
+        {% if filename %}Based on: <b>{{ filename }}</b>{% else %}Analyze a CV first to get recommendations.{% endif %}
+      </p>
+    </div>
+    <div>
+      <a class="rw-btn" href="/">Validate Another CV</a>
+    </div>
+  </div>
+
+  {% set jobs = results.get('job_recommendations', []) if results else [] %}
+
+  {% if not jobs or jobs|length == 0 %}
+    <div class="jr-card">
+      <h3 style="margin:0 0 6px 0;">No recommendations yet</h3>
+      <p style="margin:0;opacity:.85;">
+        Please upload and analyze your CV on the home page first.
+        Then click <b>“GO TO JOB RECOMMENDATIONS”</b>.
+      </p>
+    </div>
+  {% else %}
+    <div class="jr-grid">
+      {% for job in jobs %}
+      <div class="jr-card">
+        <div class="jr-top">
+          <div>
+            <h3 class="jr-role">{{ job.title }}</h3>
+            <div class="jr-meta">🏢 {{ job.company }} &nbsp;|&nbsp; 📍 {{ job.location }}</div>
+            <div class="jr-meta" style="margin-top:4px;">⏳ Closing: {{ job.closing_date }}</div>
+          </div>
+
+          {% set mp = job.match_percentage|float %}
+          <div>
+            <div class="jr-badge
+              {% if mp >= 70 %}good{% elif mp >= 50 %}mid{% else %}low{% endif %}">
+              {{ job.match_level }} • {{ job.match_percentage }}%
+            </div>
+            
+          </div>
+        </div>
+
+        
+
+        {% if job.matched_skills %}
+        <div style="font-weight:700;margin-top:6px;">Matched skills</div>
+        <div class="jr-tags">
+          {% for s in job.matched_skills %}
+            <span class="jr-pill green">{{ s }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        {% if job.missing_skills %}
+        <div style="font-weight:700;margin-top:6px;">Missing skills (to improve match)</div>
+        <div class="jr-tags">
+          {% for s in job.missing_skills %}
+            <span class="jr-pill">{{ s }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="jr-actions">
+          {% if job.url %}
+            <a href="{{ job.url }}" target="_blank" class="rw-btn">Apply</a>
+          {% else %}
+            <span style="opacity:.7;">No direct link available</span>
+          {% endif %}
+          <a href="/" class="rw-btn">Back to Results</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+</div>
+
+</body>
+</html>
