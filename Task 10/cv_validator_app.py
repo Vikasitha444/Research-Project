@@ -1830,7 +1830,7 @@ def index():
                 results=results,
                 cv_text=bundle.get("text", ""),
                 location_filter=request.form.get("location_filter", "All"),
-                top_n=5,
+                top_n=1000,
                 seniority_mode="filter",
             )
 
@@ -1923,7 +1923,7 @@ def api_validate():
             results=results,
             cv_text=bundle.get("text", ""),
             location_filter=request.form.get("location_filter", "All"),
-            top_n=int(request.form.get("top_n", 5)),
+            top_n=int(request.form.get("top_n", 10000)),
             seniority_mode=request.form.get("seniority_mode", "filter"),
         )
         return jsonify(results)
