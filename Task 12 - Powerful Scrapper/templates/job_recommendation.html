@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Recommendations</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+  <style>
+    .jr-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 30px 20px;
+    }
+
+    /* ── Filter Box ── */
+    .jr-filter-box {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 18px 22px;
+      margin-bottom: 25px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .filter-label {
+      font-weight: 700;
+      color: #334155;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    /* ── Seniority Pill Buttons ── */
+    .seniority-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .stab {
+      padding: 7px 16px;
+      border-radius: 999px;
+      border: 2px solid #e2e8f0;
+      background: #f8fafc;
+      color: #64748b;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      user-select: none;
+    }
+
+    .stab:hover { border-color: #94a3b8; color: #334155; background: #f1f5f9; }
+
+    .stab.active[data-filter="all"]    { background: #0f172a; border-color: #0f172a; color: #fff; }
+    .stab.active[data-filter="intern"] { background: #7c3aed; border-color: #7c3aed; color: #fff; }
+    .stab.active[data-filter="mid"]    { background: #0891b2; border-color: #0891b2; color: #fff; }
+    .stab.active[data-filter="senior"] { background: #059669; border-color: #059669; color: #fff; }
+
+    .stab-count {
+      background: rgba(0,0,0,0.12);
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      min-width: 20px;
+      height: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 5px;
+    }
+    .stab:not(.active) .stab-count { background: #e2e8f0; color: #475569; }
+
+    .filter-result-info {
+      font-size: 13px;
+      color: #64748b;
+      margin-left: auto;
+    }
+
+    /* ── CV Level Badge (Your Level) ── */
+    .cv-level-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 2px dashed;
+    }
+    .cv-level-badge.intern { background: #ede9fe; color: #6d28d9; border-color: #7c3aed; }
+    .cv-level-badge.mid    { background: #cffafe; color: #0e7490; border-color: #0891b2; }
+    .cv-level-badge.senior { background: #d1fae5; color: #065f46; border-color: #059669; }
+
+    /* ── Header ── */
+    .jr-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+
+    .jr-title { font-size: 30px; font-weight: 800; margin: 0; color: #0f172a; }
+    .jr-sub   { opacity: .75; margin-top: 5px; font-size: 14px; }
+
+    /* ── Grid ── */
+    .jr-grid { display: grid; grid-template-columns: 1fr; gap: 18px; }
+
+    /* ── Card ── */
+    .jr-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 20px;
+      background: #ffffff;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+      transition: all .25s ease;
+    }
+
+    .jr-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      border-color: #cbd5e1;
+    }
+
+    /* Seniority strip label on each card */
+    .seniority-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .seniority-label.intern { background: #ede9fe; color: #6d28d9; }
+    .seniority-label.mid    { background: #cffafe; color: #0e7490; }
+    .seniority-label.senior { background: #d1fae5; color: #065f46; }
+
+    .jr-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .jr-role { font-size: 20px; font-weight: 700; margin-bottom: 6px; color: #020617; }
+    .jr-meta { font-size: 14px; color: #475569; }
+
+    .jr-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; margin-bottom: 12px; }
+
+    .jr-pill { padding: 6px 12px; border-radius: 999px; background: #f1f5f9; font-size: 12px; font-weight: 500; color: #334155; }
+    .jr-pill.green  { background: #dcfce7; color: #166534; }
+    .jr-pill.purple { background: #f3e8ff; color: #6b21a8; }
+    .jr-pill.orange { background: #ffedd5; color: #9a3412; }
+
+    .jr-badge { padding: 7px 14px; border-radius: 999px; font-size: 13px; font-weight: 700; white-space: nowrap; }
+    .jr-badge.good { background: #dcfce7; color: #166534; }
+    .jr-badge.mid  { background: #fef9c3; color: #854d0e; }
+    .jr-badge.low  { background: #fee2e2; color: #991b1b; }
+
+    .soft-score-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #f3e8ff;
+      color: #6b21a8;
+      margin-top: 6px;
+    }
+
+    .jr-section-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #475569;
+      margin-top: 14px;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .jr-divider { border: none; border-top: 1px dashed #e2e8f0; margin: 14px 0 10px; }
+
+    .jr-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; }
+
+    .rw-btn {
+      padding: 10px 18px;
+      border-radius: 8px;
+      background: #2563eb;
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all .2s ease;
+      border: none;
+      cursor: pointer;
+    }
+    .rw-btn:hover { background: #1d4ed8; transform: translateY(-1px); }
+    .rw-btn.secondary { background: #e2e8f0; color: #0f172a; }
+    .rw-btn.secondary:hover { background: #cbd5e1; }
+
+    .jr-empty-state {
+      display: none;
+      text-align: center;
+      padding: 50px 20px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+    }
+    .jr-empty-state.visible { display: block; }
+    .jr-empty-state h3 { color: #64748b; margin: 0 0 8px; font-size: 20px; }
+    .jr-empty-state p  { color: #94a3b8; margin: 0; font-size: 14px; }
+
+    @media (max-width: 768px) {
+      .jr-head         { flex-direction: column; align-items: flex-start; }
+      .jr-top          { flex-direction: column; align-items: flex-start; }
+      .jr-filter-box   { flex-direction: column; align-items: flex-start; }
+      .filter-result-info { margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-container">
+    <a href="/" class="logo-link"><div class="logo">📄 CV Validator Pro</div></a>
+    <div class="nav-buttons">
+      <a href="/" class="btn-getstarted">← Back</a>
+    </div>
+  </div>
+</nav>
+
+<div class="jr-wrap">
+
+  <!-- Header -->
+  <div class="jr-head">
+    <div>
+      <h1 class="jr-title">💼 Job Recommendations</h1>
+      <p class="jr-sub">
+        {% if filename %}Based on: <b>{{ filename }}</b>{% else %}Analyze a CV first to get recommendations.{% endif %}
+      </p>
+    </div>
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <!-- Show what level the CV was detected as -->
+      {% set jobs = results.get('job_recommendations', []) if results else [] %}
+      {% if jobs %}
+        {% set detected_level = jobs[0].cv_level_used | default('mid') %}
+        {% set level_map = {'intern_junior': 'intern', 'mid': 'mid', 'senior': 'senior'} %}
+        {% set fl = level_map.get(detected_level, 'mid') %}
+        {% set level_labels = {'intern': '🟣 Intern / Junior', 'mid': '🔵 Mid-Level', 'senior': '🟢 Senior / Lead'} %}
+        <span class="cv-level-badge {{ fl }}" title="Detected CV level">
+          Your Level: {{ level_labels.get(fl, 'Mid-Level') }}
+        </span>
+      {% endif %}
+      <a class="rw-btn" href="/">Validate Another CV</a>
+    </div>
+  </div>
+
+  {% set jobs = results.get('job_recommendations', []) if results else [] %}
+
+  {% if not jobs or jobs|length == 0 %}
+    <div class="jr-card" style="text-align:center; padding:40px;">
+      <h3 style="margin:0 0 10px 0; color:#64748b;">No job recommendations found</h3>
+      <p style="margin:0; opacity:.85;">Upload a CV to get personalized job matches.</p>
+      <br>
+      <a href="/" class="rw-btn secondary">Go Back</a>
+    </div>
+
+  {% else %}
+
+    <!-- ── Seniority Filter Bar ── -->
+    <div class="jr-filter-box">
+      <span class="filter-label">🎯 Career Level:</span>
+
+      <div class="seniority-tabs">
+        <button class="stab active" data-filter="all">
+          All Levels <span class="stab-count" id="count-all">0</span>
+        </button>
+        <button class="stab" data-filter="intern">
+          🟣 Intern / Junior <span class="stab-count" id="count-intern">0</span>
+        </button>
+        <button class="stab" data-filter="mid">
+          🔵 Mid-Level <span class="stab-count" id="count-mid">0</span>
+        </button>
+        <button class="stab" data-filter="senior">
+          🟢 Senior / Lead <span class="stab-count" id="count-senior">0</span>
+        </button>
+      </div>
+
+      <span class="filter-result-info" id="filterInfo">Showing all jobs</span>
+    </div>
+
+    <!-- ── Job Cards ── -->
+    <div class="jr-grid" id="jobGrid">
+
+      {% for job in jobs %}
+        {#
+          seniority_level is set by backend:
+          "intern"  →  intern_junior jobs
+          "mid"     →  mid-level jobs
+          "senior"  →  senior / lead jobs
+        #}
+        {% set sl = job.seniority_level | default('mid') %}
+
+        <div class="jr-card" data-seniority="{{ sl }}">
+
+          <!-- Seniority strip -->
+          <span class="seniority-label {{ sl }}">
+            {% if sl == 'intern' %}🟣 Intern / Junior
+            {% elif sl == 'senior' %}🟢 Senior / Lead
+            {% else %}🔵 Mid-Level
+            {% endif %}
+          </span>
+
+          <div class="jr-top">
+            <div>
+              <h3 class="jr-role">{{ job.title }}</h3>
+              <div class="jr-meta">🏢 {{ job.company }} &nbsp;|&nbsp; 📍 {{ job.location }}</div>
+              <div class="jr-meta" style="margin-top:4px;">⏳ Closing: {{ job.closing_date }}</div>
+            </div>
+
+            {% set mp = job.match_percentage | float %}
+            <div>
+              <div class="jr-badge {% if mp >= 70 %}good{% elif mp >= 50 %}mid{% else %}low{% endif %}">
+                {{ job.match_level }} • {{ job.match_percentage }}%
+              </div>
+            </div>
+          </div>
+
+          {% if job.matched_skills %}
+            <div class="jr-section-label">✅ Matched Technical Skills</div>
+            <div class="jr-tags">
+              {% for s in job.matched_skills %}
+                <span class="jr-pill green">{{ s }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          {% if job.missing_skills %}
+            <div class="jr-section-label">📌 Missing Technical Skills</div>
+            <div class="jr-tags">
+              {% for s in job.missing_skills %}
+                <span class="jr-pill">{{ s }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          {% set has_soft = job.soft_skills_matched is defined or job.soft_skills_missing is defined %}
+          {% if has_soft %}
+            <hr class="jr-divider">
+
+            {% if job.soft_score_display %}
+              <div>
+                <span class="soft-score-badge">🧠 Soft Skill Match &nbsp;{{ job.soft_score_display }}</span>
+              </div>
+            {% endif %}
+
+            {% if job.soft_skills_matched %}
+              <div class="jr-section-label">🤝 Matched Soft Skills</div>
+              <div class="jr-tags">
+                {% for s in job.soft_skills_matched %}
+                  <span class="jr-pill purple">{{ s | replace('_', ' ') | title }}</span>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            {% if job.soft_skills_missing %}
+              <div class="jr-section-label">💡 Soft Skills to Develop</div>
+              <div class="jr-tags">
+                {% for s in job.soft_skills_missing %}
+                  <span class="jr-pill orange">{{ s | replace('_', ' ') | title }}</span>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            {% if not job.soft_skills_matched and not job.soft_skills_missing %}
+              <div class="jr-section-label" style="color:#94a3b8;">🧠 Soft skills not detected in CV</div>
+            {% endif %}
+          {% endif %}
+
+          <div class="jr-actions">
+            {% if job.url %}
+              <a href="{{ job.url }}" target="_blank" class="rw-btn">Apply Now</a>
+            {% else %}
+              <span style="opacity:.7;">No direct link available</span>
+            {% endif %}
+            <a href="/" class="rw-btn secondary">Back Home</a>
+          </div>
+
+        </div>
+      {% endfor %}
+
+    </div>
+
+    <!-- Shown when a filter returns 0 results -->
+    <div class="jr-empty-state" id="emptyState">
+      <div style="font-size:40px; margin-bottom:12px;">😕</div>
+      <h3>No jobs found for this level</h3>
+      <p>Try selecting a different career level above.</p>
+    </div>
+
+  {% endif %}
+</div>
+
+<!-- ── Client-side Filter Script ── -->
+<script>
+  const tabs  = document.querySelectorAll('.stab');
+  const cards = document.querySelectorAll('#jobGrid .jr-card[data-seniority]');
+  const grid  = document.getElementById('jobGrid');
+  const empty = document.getElementById('emptyState');
+  const info  = document.getElementById('filterInfo');
+
+  // ── Count jobs per seniority level ──────────────────────────
+  const counts = { all: 0, intern: 0, mid: 0, senior: 0 };
+  cards.forEach(c => {
+    const lvl = c.dataset.seniority;
+    counts.all++;
+    if (lvl === 'intern' || lvl === 'mid' || lvl === 'senior') {
+      counts[lvl]++;
+    }
+  });
+
+  // Populate count bubbles in buttons
+  document.getElementById('count-all').textContent    = counts.all;
+  document.getElementById('count-intern').textContent = counts.intern;
+  document.getElementById('count-mid').textContent    = counts.mid;
+  document.getElementById('count-senior').textContent = counts.senior;
+
+  // Hide buttons whose count is 0 (cleaner UX)
+  tabs.forEach(tab => {
+    const f = tab.dataset.filter;
+    if (f !== 'all' && counts[f] === 0) {
+      tab.style.display = 'none';
+    }
+  });
+
+  const levelNames = {
+    all:    'All Levels',
+    intern: 'Intern / Junior',
+    mid:    'Mid-Level',
+    senior: 'Senior / Lead'
+  };
+
+  function applyFilter(selected) {
+    let visible = 0;
+
+    cards.forEach(card => {
+      const show = (selected === 'all') || (card.dataset.seniority === selected);
+      card.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+
+    // Swap active class on tabs
+    tabs.forEach(t => t.classList.toggle('active', t.dataset.filter === selected));
+
+    // Update info label
+    if (info) {
+      info.textContent = `Showing ${visible} job${visible !== 1 ? 's' : ''} · ${levelNames[selected] || selected}`;
+    }
+
+    // Empty state toggle
+    if (empty && grid) {
+      const noResults = visible === 0;
+      empty.classList.toggle('visible', noResults);
+      grid.style.display = noResults ? 'none' : '';
+    }
+  }
+
+  // Wire up filter buttons
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => applyFilter(tab.dataset.filter));
+  });
+
+  // On load: default to "all"
+  applyFilter('all');
+</script>
+
+</body>
+</html>
