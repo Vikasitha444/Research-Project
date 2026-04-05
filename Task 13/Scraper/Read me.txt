@@ -1,0 +1,15 @@
+අලුත් Jobs කොහොමද Scrape කරන්නේ?
+
+පියවර 01
+	- "job_scraper.py" එක Run කරන්න. 
+	- ඉන්පසු, Project එකේ, Source Folder එක තෝරා දෙන්න
+	- එවිට, "topjobs_it_jobs.csv" නමින් File එකක්, එම Folder එක තුල නිර්මාණය වේ.
+
+
+
+පියවර 02	
+	- ඉන්පසු, පහත Command එක, CMD එකෙහි Run කරන්න. (CMD එක, එම Folder එක තුල, Open කර තිබිය යුතුයි)
+
+		"python cv_validator_app.py --reset-cache --enrich"
+	
+	- එවිට, "topjobs_it_jobs_enriched.csv" නම් CSV එක නිර්මාණය වේ. (මේ සඳහා සැලකිය යුතු කාලයක් ගත වන බව 	 	 කරුණාවෙන් සළකන්න)
