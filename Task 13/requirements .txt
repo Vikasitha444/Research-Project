@@ -1,0 +1,36 @@
+# ============================================================
+#  CV Validator Pro — Requirements
+#  Project: Group 19 | University of Sri Jayewardenepura
+#  Supervisor: Dr. Chamara Liyanage & Ms. Nirasha Kulasooriya
+# ============================================================
+
+# --- Web Framework ---
+flask>=3.0.0
+
+# --- AI / LLM (Groq via OpenAI-compatible client) ---
+openai>=1.30.0
+
+# --- PDF Processing ---
+pymupdf>=1.24.0
+pymupdf4llm>=0.0.17
+
+# --- OCR ---
+easyocr>=1.7.1
+
+# --- Computer Vision (used by OCR preprocessing) ---
+opencv-python-headless>=4.9.0.80
+
+# --- Data & ML ---
+numpy>=1.26.0
+pandas>=2.2.0
+scikit-learn>=1.4.0
+
+# --- Web Scraping ---
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+
+# --- Image Processing ---
+pillow>=10.3.0
+
+# --- Utilities (usually installed with Flask, listed for clarity) ---
+werkzeug>=3.0.0
